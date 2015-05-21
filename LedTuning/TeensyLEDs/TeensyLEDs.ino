@@ -13,6 +13,7 @@ LedTable myLedTable( 3 );
 
 void setup() {
   // put your setup code here, to run once:
+
   pinMode(REDPIN, OUTPUT);
   pinMode(GREENPIN, OUTPUT);
   pinMode(BLUEPIN, OUTPUT);
@@ -32,7 +33,15 @@ void setup() {
   delay(3000);
   Serial.println("Began sketch");
 
+  myIMU.settings.gyroEnabled = 0;  //Can be 0 or 1
+
+  myIMU.settings.accelEnabled = 1;
+  myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
+  myIMU.settings.accelSampleRate = 1666;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelBandWidth = 50;  //Hz.  Can be: 50, 100, 200, 400;
+
   myIMU.settings.commInterface = SPI_MODE;
+
   myIMU.begin();
 
   myLedTable.calcTable();
@@ -52,36 +61,37 @@ void setup() {
   //while(1);
 }
 
+float lastZValue = 0;
 
 void loop()
 {
-  float xValue = 0;
-  float yValue = 0;
   float zValue = 0;
-  for ( int i = 0; i < 24; i++ )
-  { //Get all parameters 10 times, then average
-    xValue += myIMU.readFloatAccelX();
-    yValue += myIMU.readFloatAccelY();
-    zValue += myIMU.readFloatAccelZ();
-    delay(2);
-  }
-  xValue = xValue / 10;
-  yValue = yValue / 10;
-  zValue = zValue / 10;
+
+  delay(10);
+
+  zValue = myIMU.readFloatAccelZ();
+  zValue -= 1;
   
-  if ( xValue < 0 ) xValue = xValue * float(-1);
-  if ( xValue > 4 ) xValue = 1;
-  if ( yValue < 0 ) yValue = yValue * float(-1);
-  if ( yValue > 4 ) yValue = 1;
-  if ( zValue < 0 ) zValue = zValue * float(-1);
-  if ( zValue > 4 ) zValue = 1;
+  if ( zValue < -2 ) zValue = -2;
+  if ( zValue > 2 ) zValue = 2;
+  
+  float dZValue = zValue - lastZValue;
+  lastZValue = zValue;
 
-  uint8_t xPWM = xValue * 63;
-  uint8_t yPWM = yValue * 63;
-  uint8_t zPWM = zValue * 63;
+  uint8_t control = (zValue * 63) + 128;
+  
+  if( dZValue > .2 )
+  {
+    //Red
+    analogWrite(REDPIN, myLedTable.ledAdjust( control ));    
+    analogWrite(BLUEPIN, 0);
+  }
 
-  analogWrite(REDPIN, myLedTable.ledAdjust(xPWM));
-  analogWrite(GREENPIN, myLedTable.ledAdjust(yPWM));
-  analogWrite(BLUEPIN, myLedTable.ledAdjust(zPWM));
+  if( dZValue < -.2 )
+  {
+    //Blue
+    analogWrite(BLUEPIN, myLedTable.ledAdjust( 255 - control ));    
+    analogWrite(REDPIN, 0);
+  }
 
 }
