@@ -21,10 +21,21 @@
 #define LEDPIN 13
 #include "timerModule.h"
 #include "stdint.h"
+#include "ledTuning.h"
+#include "colorTools.h"
+#include "SparkFunLSM6DS3.h"
+#include "Wire.h"
+#include "SPI.h"
 
+#define REDPIN 9
+#define GREENPIN 16
+#define BLUEPIN 17
+
+LedTable myLedTable( 5 );
+ColorPoint myPoint;
 //Globals
 IntervalTimer myTimer;
-
+LSM6DS3 myIMU;
 TimerClass msTimerA( 20 );
 TimerClass msTimerB( 21 );
 
@@ -41,6 +52,27 @@ void setup()
   // initialize IntervalTimer
   myTimer.begin(serviceMS, 1000);  // serviceMS to run every 0.001 seconds
 
+  pinMode(REDPIN, OUTPUT);
+  pinMode(GREENPIN, OUTPUT);
+  pinMode(BLUEPIN, OUTPUT);
+
+  digitalWrite(REDPIN, 0);
+  digitalWrite(GREENPIN, 0);
+  digitalWrite(BLUEPIN, 0);
+
+  myIMU.settings.gyroEnabled = 0;  //Can be 0 or 1
+
+  myIMU.settings.accelEnabled = 1;
+  myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
+  myIMU.settings.accelSampleRate = 1666;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelBandWidth = 50;  //Hz.  Can be: 50, 100, 200, 400;
+
+  myIMU.settings.commInterface = SPI_MODE;
+
+  myIMU.begin();
+
+  myLedTable.calcTable();
+  
   delay(2000);
   
   
@@ -79,6 +111,19 @@ void loop()
     msTimerB.setInterval(intervalSeed);
 
   }
+
+
+  float zValue = 0;
+
+  delay(10);
+
+  zValue = myIMU.readFloatAccelZ();
+  
+  if ( zValue < -2 ) zValue = -2;
+  if ( zValue > 2 ) zValue = 2;
+  
+  myPoint.redF = 1000 * zValue;
+  
 }
 
 void serviceMS(void)
@@ -96,6 +141,10 @@ void serviceMS(void)
   msTicks = returnVar;
   msTicksMutex = 0;  //unlock
   
+  myPoint.tick();
+  analogWrite(REDPIN, myLedTable.ledAdjust(myPoint.redP + 128)); 
+  analogWrite(BLUEPIN, myLedTable.ledAdjust(255 - myPoint.redP + 128)); 
+
 }
 
 
