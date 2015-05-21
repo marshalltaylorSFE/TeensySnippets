@@ -19,16 +19,25 @@ ColorPoint::ColorPoint( void )
 
 void ColorPoint::tick( void )
 {
-  float tempRedP = redP + redV * 0.001;
-  float tempRedV = redV + ( (redF / mass) * 0.001 )/2;
+  float tempRedP = redP + redV * 0.001 + 0.5 * (redF / mass) * .000001;
+  float tempRedV = redV + ( (redF / mass) * 0.001 );
+  tempRedV = tempRedV * .999;
   if(( tempRedP < 127 )&&( tempRedP > -127))
   {
     redP = tempRedP;
+    if(( tempRedV < 10000 )&&( tempRedV > -10000))
+    {
+      redV = tempRedV;
+    }
+    
   }
-  if(( tempRedV < 100 )&&( tempRedV > -100))
+  else
   {
-    redV = tempRedV;
+    if(( tempRedV < 10000 )&&( tempRedV > -10000))
+    {
+      redV = -tempRedV;
+    }
   }
-  
+
 }
 

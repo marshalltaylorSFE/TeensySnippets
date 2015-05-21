@@ -36,6 +36,7 @@ ColorPoint myPoint;
 //Globals
 IntervalTimer myTimer;
 LSM6DS3 myIMU;
+
 TimerClass msTimerA( 20 );
 TimerClass msTimerB( 21 );
 
@@ -69,11 +70,12 @@ void setup()
 
   myIMU.settings.commInterface = SPI_MODE;
 
+  delay(2000);
+
   myIMU.begin();
 
   myLedTable.calcTable();
   
-  delay(2000);
   
   
 }
@@ -115,15 +117,16 @@ void loop()
 
   float zValue = 0;
 
-  delay(10);
+  //delay(10);
 
   zValue = myIMU.readFloatAccelZ();
   
   if ( zValue < -2 ) zValue = -2;
   if ( zValue > 2 ) zValue = 2;
   
-  myPoint.redF = 1000 * zValue;
-  
+  myPoint.redF = 3200 * zValue;
+
+ 
 }
 
 void serviceMS(void)
