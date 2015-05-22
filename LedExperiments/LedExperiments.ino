@@ -64,7 +64,7 @@ void setup()
   myIMU.settings.gyroEnabled = 0;  //Can be 0 or 1
 
   myIMU.settings.accelEnabled = 1;
-  myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
+  myIMU.settings.accelRange = 8;      //Max G force readable.  Can be: 2, 4, 8, 16
   myIMU.settings.accelSampleRate = 1666;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
   myIMU.settings.accelBandWidth = 50;  //Hz.  Can be: 50, 100, 200, 400;
 
@@ -119,10 +119,10 @@ void loop()
 
   //delay(10);
 
-  zValue = myIMU.readFloatAccelZ();
+  zValue = myIMU.readFloatAccelY();
   
-  if ( zValue < -2 ) zValue = -2;
-  if ( zValue > 2 ) zValue = 2;
+  if ( zValue < -8 ) zValue = -8;
+  if ( zValue > 8 ) zValue = 8;
   
   myPoint.redF = 3200 * zValue;
 

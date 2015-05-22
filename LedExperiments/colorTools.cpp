@@ -21,7 +21,7 @@ void ColorPoint::tick( void )
 {
   float tempRedP = redP + redV * 0.001 + 0.5 * (redF / mass) * .000001;
   float tempRedV = redV + ( (redF / mass) * 0.001 );
-  tempRedV = tempRedV * .999;
+  tempRedV = tempRedV * .9995;
   if(( tempRedP < 127 )&&( tempRedP > -127))
   {
     redP = tempRedP;
