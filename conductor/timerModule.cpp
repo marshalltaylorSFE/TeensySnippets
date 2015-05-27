@@ -15,8 +15,10 @@
 #include "timerModule.h"
 
 //**********************************************************************//
-//  Constructor
 //
+//  Periodic timer class
+//
+//**********************************************************************//
 TimerClass::TimerClass( int intervalVar )
 {
     flag = WAITING;
@@ -67,4 +69,3 @@ void TimerClass::setInterval( uint16_t msLength )
   interval = msLength;
   
 }
-

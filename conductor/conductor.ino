@@ -18,161 +18,115 @@
 //  Set MAXTIMER to overflow number in the header.  MAXTIMER + MAXINTERVAL
 //    cannot exceed variable size.
 
-#define LEDPIN 13
-#include "timerModule.h"
+//**General***********************************//
 #include "stdint.h"
-#include "ledTuning.h"
-#include "colorTools.h"
-#include "SparkFunLSM6DS3.h"
-#include "Wire.h"
-#include "SPI.h"
-#include <Adafruit_NeoPixel.h>
-#include <avr/power.h>
 
-#define REDPIN 9
-#define GREENPIN 16
-#define BLUEPIN 17
-
-//Globals
-
-LedTable myLedTable( 5 );
-
-FlashDialog myFlashDialog;
-DownBeat myDownBeat;
+//**Timers and stuff**************************//
+#include "timerModule.h"
 
 IntervalTimer myTimer;
-LSM6DS3 myIMU;
 
-TimerClass msTimerLED( 5 );
-TimerClass msTimerStates( 10 );
+TimerClass ledOutputTimer( 5 ); //For updating LEDs
+TimerClass stateTickTimer( 10 ); //Do color state maths
+TimerClass accelReadTimer( 10 ); //read the sensor and integrate
+TimerClass debugTimer(1000);
 
 uint16_t msTicks = 0;
 uint8_t msTicksMutex = 1; //start locked out
 
-#define MAXINTERVAL 2000
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      8
+#define MAXINTERVAL 2000 //Max TimerClass interval
 
-#define PIN 3
+//**Color state machines**********************//
 
-// Parameter 1 = number of pixels in strip
-// Parameter 2 = Arduino pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+//**Accelerometer integration and sensor******//
+#include <SparkFunLSM6DS3.h>
+#include "accelMaths.h"
+#include "Wire.h"
+#include "SPI.h"
 
-// IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
-// pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
-// and minimize distance between Arduino and first pixel.  Avoid connecting
-// on a live circuit...if you must, connect GND first.
+AccelMaths myIMU;
+
+//**Color output stuff************************//
+#include "colorMixer.h"
+
+ColorMixer outputMixer;
 
 void setup()
 {
-  //Serial.begin(9600);
-  pinMode(LEDPIN, OUTPUT);
-
-  // initialize IntervalTimer
-  myTimer.begin(serviceMS, 1000);  // serviceMS to run every 0.001 seconds
-
-  pinMode(REDPIN, OUTPUT);
-  pinMode(GREENPIN, OUTPUT);
-  pinMode(BLUEPIN, OUTPUT);
-
-  digitalWrite(REDPIN, 0);
-  digitalWrite(GREENPIN, 0);
-  digitalWrite(BLUEPIN, 0);
-
-  myIMU.settings.gyroEnabled = 0;  //Can be 0 or 1
-
-  myIMU.settings.accelEnabled = 1;
-  myIMU.settings.accelRange = 8;      //Max G force readable.  Can be: 2, 4, 8, 16
-  myIMU.settings.accelSampleRate = 1666;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
-  myIMU.settings.accelBandWidth = 50;  //Hz.  Can be: 50, 100, 200, 400;
-
-  myIMU.settings.commInterface = SPI_MODE;
-
   delay(2000);
 
+  Serial.begin(57600);
+  Serial.println("Program started\n");
+
+  // initialize IntervalTimer interrupt stuff
+  myTimer.begin(serviceMS, 1000);  // serviceMS to run every 0.001 seconds
+
+  //Select bus if nothing else.
+  myIMU.settings.commInterface = SPI_MODE;
+  //Call .begin() to configure the IMU
+  myIMU.settings.accelEnabled = 1;
+  myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
+  myIMU.settings.accelSampleRate = 1666;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelBandWidth = 200;  //Hz.  Can be: 50, 100, 200, 400;
+  myIMU.settings.accelFifoEnabled = 1;  //Set to include accelerometer in the FIFO
+  myIMU.settings.accelFifoDecimation = 1;  //set 1 for on /1
+  myIMU.settings.tempEnabled = 1;
   myIMU.begin();
-
-  myLedTable.calcTable();
-  
-  pixels.begin();
-  pixels.show(); // Initialize all pixels to 'off'
-
-  myFlashDialog.enable(1);
   
 }
 
-int i = 0;
 void loop()
 {
   // main program
+  
   if( msTicksMutex == 0 )  //Only touch the timers if clear to do so.
   {
-    msTimerLED.update(msTicks);
-    msTimerStates.update(msTicks);
-    
-    //Done?  Lock it back up
+//**Copy to make a new timer******************//  
+//    msTimerA.update(msTicks);
+    ledOutputTimer.update(msTicks);
+	stateTickTimer.update(msTicks);
+	accelReadTimer.update(msTicks);
+	debugTimer.update(msTicks);
+
+ //Done?  Lock it back up
     msTicksMutex = 1;
   }  //The ISR should clear the mutex.
   
-  if(msTimerLED.flagStatus() == PENDING)
+//**Copy to make a new timer******************//  
+//  if(msTimerA.flagStatus() == PENDING)
+//  {
+//    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
+//  }
+  if(ledOutputTimer.flagStatus() == PENDING)
   {
-    if(( myFlashDialog.red > 0 )||( myDownBeat.green > 0))
-    {
-      for(int i=0;i<NUMPIXELS;i++)
-      {
-        // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
-        pixels.setPixelColor(i, pixels.Color(myFlashDialog.red,myDownBeat.green,myFlashDialog.blue)); // Moderately bright green color.
-        //pixels.setPixelColor(i, pixels.Color(0,green,0)); // Moderately bright green color.
-        pixels.show(); // This sends the updated pixel color to the hardware.
-
-      }
-    }
-    else
-    {
-      pixels.setPixelColor(0,50,0,0);
-      pixels.setPixelColor(1,35,15,10);
-      pixels.setPixelColor(2,10,15,20);
-      pixels.setPixelColor(3,0,0,30);
-      pixels.setPixelColor(4,0,0,30);
-      pixels.setPixelColor(5,10,15,20);
-      pixels.setPixelColor(6,35,15,10);
-      pixels.setPixelColor(7,50,0,0);
-      pixels.show();
-    }
-    
+    outputMixer.clear();
+	//outputMixer.addLayer();
+	outputMixer.mix();
+	
   }
-  if(msTimerStates.flagStatus() == PENDING)
+  if(stateTickTimer.flagStatus() == PENDING)
   {
-    myFlashDialog.tick();
-    myDownBeat.tick();
-
   }
-
-  float yValue = myIMU.readFloatAccelY();
-  float zValue = myIMU.readFloatAccelZ();
-
-  //if ( yValue > 8 ) yValue = 8;
-  if ( yValue < -4 )
+  if(accelReadTimer.flagStatus() == PENDING)
   {
-    myDownBeat.enable(1);
-    myFlashDialog.enable(0);
+    myIMU.tick();
+    Serial.println(myIMU.scaledXX(), 4);
+	
   }
-  else
+  if(debugTimer.flagStatus() == PENDING)
   {
-    myDownBeat.enable(0);
-  }
+    //Get all parameters
+  Serial.print("\nPos:\n");
+  Serial.print(" X = ");
+  Serial.println(myIMU.scaledXX(), 4);
+
+  Serial.print("\nThermometer:\n");
+  Serial.print(" Degrees C = ");
+  Serial.println(myIMU.readTempC(), 4);
+  Serial.print(" Degrees F = ");
+  Serial.println(myIMU.readTempF(), 4);
+  }  
   
-  if(( zValue > 5 )&&( yValue > 3 ))
-  {
-    myFlashDialog.enable(1);
-  }
-
 }
 
 void serviceMS(void)

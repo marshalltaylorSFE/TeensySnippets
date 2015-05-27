@@ -1,5 +1,17 @@
-#ifndef COLORTOOLS_H_INCLUDED
-#define COLORTOOLS_H_INCLUDED
+//**********************************************************************//
+//  BEERWARE LICENSE
+//
+//  This code is free for any use provided that if you meet the author
+//  in person, you buy them a beer.
+//
+//  This license block is BeerWare itself.
+//
+//  Written by:  Marshall Taylor
+//  Created:  May 26, 2015
+//
+//**********************************************************************//
+#ifndef COLORMACHINES_H_INCLUDED
+#define COLORMACHINES_H_INCLUDED
 
 #include "stdint.h"
 
@@ -11,6 +23,8 @@ enum FDStates {
   FDholdOff
 
 };
+
+#define FDTICKMS 10;
 
 class FlashDialog
 {
@@ -40,6 +54,8 @@ enum DBStates {
 
 };
 
+#define DBTICKMS 10;
+
 class DownBeat
 {
 public:
@@ -56,19 +72,6 @@ public:
   DownBeat( void );
   void enable( uint8_t );
   void tick( void );
-
-};
-
-class TimeKeeper
-{
-public:
-    TimeKeeper( void );
-    void mClear( void );
-    uint16_t mGet( void );
-    void mIncrement( uint8_t );
-
-private:
-    uint16_t timeElapsed;
 
 };
 
