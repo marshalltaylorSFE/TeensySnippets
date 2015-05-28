@@ -22,6 +22,7 @@ class AccelMaths : public LSM6DS3
 public:
     AccelMaths( void );
 	void tick( void );
+	float scaledXA( void );
 	float scaledXV( void );
 	float scaledXX( void );
 	

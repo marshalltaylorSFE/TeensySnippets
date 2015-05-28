@@ -37,6 +37,11 @@ uint8_t msTicksMutex = 1; //start locked out
 #define MAXINTERVAL 2000 //Max TimerClass interval
 
 //**Color state machines**********************//
+#include "colorMixer.h"
+
+//**Color pages
+const RGBA8_t background[8] = {30, 5, 0, 255,    20, 12, 10, 255,    10, 12, 20, 255,    0, 5, 30, 255,    0, 5, 30, 255,    10, 12, 20, 255,    20, 12, 10, 255,    30, 5, 0, 255};
+RGBA8_t testColor;
 
 //**Accelerometer integration and sensor******//
 #include <SparkFunLSM6DS3.h>
@@ -47,9 +52,10 @@ uint8_t msTicksMutex = 1; //start locked out
 AccelMaths myIMU;
 
 //**Color output stuff************************//
+#include <Adafruit_NeoPixel.h>
 #include "colorMixer.h"
-
-ColorMixer outputMixer;
+#define WS2812PIN 3
+ColorMixer outputMixer = ColorMixer(60, WS2812PIN, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
@@ -73,6 +79,11 @@ void setup()
   myIMU.settings.tempEnabled = 1;
   myIMU.begin();
   
+  outputMixer.begin();
+  outputMixer.show();
+  
+  testColor.red = 255;
+  testColor.alpha = 128;
 }
 
 void loop()
@@ -99,9 +110,13 @@ void loop()
 //  }
   if(ledOutputTimer.flagStatus() == PENDING)
   {
-    outputMixer.clear();
-	//outputMixer.addLayer();
-	outputMixer.mix();
+    //Push the output
+    outputMixer.mix();
+    outputMixer.show();
+    //Reset the field
+    outputMixer.clearPage();
+    outputMixer.addLayer((RGBA8_t*)background);
+    outputMixer.orLayer(testColor);
 	
   }
   if(stateTickTimer.flagStatus() == PENDING)
@@ -110,7 +125,14 @@ void loop()
   if(accelReadTimer.flagStatus() == PENDING)
   {
     myIMU.tick();
+    Serial.print(myIMU.scaledXA(), 4);
+    Serial.print(",");
     Serial.println(myIMU.scaledXX(), 4);
+    
+    if( (myIMU.scaledXX() < 0) && (myIMU.scaledXX() > -5000) )
+    {
+      testColor.red = (myIMU.scaledXX() * 255 / -5000);
+    }
 	
   }
   if(debugTimer.flagStatus() == PENDING)

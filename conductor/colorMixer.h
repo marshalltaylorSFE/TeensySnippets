@@ -14,6 +14,8 @@
 #define COLORMIXER_H_INCLUDED
 
 #include "stdint.h"
+#include <Adafruit_NeoPixel.h>
+
 //Structures
 struct RGBA8_t
 {
@@ -24,16 +26,17 @@ struct RGBA8_t
 };
 
 //Classes
-class ColorMixer
+class ColorMixer : public Adafruit_NeoPixel
 {
 public:
-    ColorMixer( void );
-	void clear( void );
-	void addLayer( RGBA8_t );//Color, opacity
-	void addLayer( RGBA8_t * );//Color, opacity
-	void mix( void );
+    ColorMixer(uint16_t n, uint8_t p=6, uint8_t t=NEO_GRB + NEO_KHZ800);// : Adafruit_NeoPixel(n, p, t);
+    void clearPage( void );
+    void addLayer( RGBA8_t );//Color, opacity
+    void addLayer( RGBA8_t * );//Color, opacity
+    void orLayer( RGBA8_t );//Color, opacity
+    void mix( void );
 
-	RGBA8_t mainPage;
+    RGBA8_t mainPage[8];
 	
 private:
 

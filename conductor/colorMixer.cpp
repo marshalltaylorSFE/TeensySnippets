@@ -13,41 +13,82 @@
 
 //Includes
 #include "colorMixer.h"
+#include <Adafruit_NeoPixel.h>
 
 //**********************************************************************//
 //
 //  Color Mixer
 //
 //**********************************************************************//
-ColorMixer::ColorMixer( void )
+ColorMixer::ColorMixer(uint16_t n, uint8_t p, uint8_t t) : Adafruit_NeoPixel(n, p, t)
 {
-    mainPage.red = 0;
-	mainPage.green = 0;
-	mainPage.blue = 0;
-	mainPage.alpha = 0;
-
+  for (int i = 0; i < 8; i++)
+  {
+    mainPage[i].red = 0;
+    mainPage[i].green = 0;
+    mainPage[i].blue = 0;
+    mainPage[i].alpha = 0;
+  }
+ 
 }
 
-void ColorMixer::clear( void )
+void ColorMixer::clearPage( void )
 {
-	;
+  for (int i = 0; i < 8; i++)
+  {
+    mainPage[i].red = 0;
+    mainPage[i].green = 0;
+    mainPage[i].blue = 0;
+    mainPage[i].alpha = 0;
+  }
 
 }
 
 void ColorMixer::addLayer( RGBA8_t inputColor )
 {
-	;
+  for (int i = 0; i < 8; i++)
+  {
+
+  }
 
 }
 
 void ColorMixer::addLayer( RGBA8_t * inputColorMatrix )
 {
-	;
+  for (int i = 0; i < 8; i++)
+  {
+    mainPage[i].red = inputColorMatrix[i].red;
+    mainPage[i].green = inputColorMatrix[i].green;
+    mainPage[i].blue = inputColorMatrix[i].blue;
+  }
+
+}
+void ColorMixer::orLayer( RGBA8_t inputColor )
+{
+  for (int i = 0; i < 8; i++)
+  {
+    if( inputColor.red > mainPage[i].red )
+    {
+      mainPage[i].red =  inputColor.red;
+    }
+    if( inputColor.green > mainPage[i].green )
+    {
+      mainPage[i].green =  inputColor.green;
+    }
+    if( inputColor.blue > mainPage[i].blue )
+    {
+      mainPage[i].blue =  inputColor.blue;
+    }
+  }
 
 }
 
 void ColorMixer::mix( void )
 {
-	;
+  for (int i = 0; i < 8; i++)
+  {
+    setPixelColor(i, mainPage[i].red, mainPage[i].green, mainPage[i].blue);
+
+  }
 
 }

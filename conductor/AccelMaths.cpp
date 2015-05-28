@@ -24,8 +24,8 @@ AccelMaths::AccelMaths( void )
 {
   //LSM6DS3 myIMU;
   msDeltaT = 10;
-  vDecay = 0.9998;
-  xDecay = 0.9998;
+  vDecay = 0.95;
+  xDecay = 0.95;
   gOffset = 0.98;
   lastXA = 0;
   lastXV = 0;
@@ -43,10 +43,16 @@ void AccelMaths::tick( void )
   lastXV = XV;
   lastXA = XA;
   
-  XA = readFloatAccelY() + gOffset;
-  XV = (lastXV + ((float)msDeltaT / 10) * (XA))*vDecay;
-  XX = (lastXX + ((float)msDeltaT / 10) * (XV))*xDecay;
+  XA = -1 * (readFloatAccelY() + gOffset);
+  XV = (lastXV + ((float)msDeltaT) * (XA)) * vDecay;
+  XX = (lastXX + ((float)msDeltaT) * (XV)) * xDecay;
 
+}
+
+float AccelMaths::scaledXA( void )
+{
+ 
+  return XA;
 }
 
 float AccelMaths::scaledXV( void )
@@ -58,5 +64,5 @@ float AccelMaths::scaledXV( void )
 float AccelMaths::scaledXX( void )
 {
   
-  return XA;
+  return XX;
 }
