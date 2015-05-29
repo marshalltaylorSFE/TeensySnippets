@@ -71,9 +71,10 @@ void setup()
   myIMU.settings.commInterface = SPI_MODE;
   //Call .begin() to configure the IMU
   myIMU.settings.accelEnabled = 1;
+  myIMU.settings.accelODROff = 0;  //Set to disable ODR (control sample rate)
   myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
-  myIMU.settings.accelSampleRate = 1666;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
-  myIMU.settings.accelBandWidth = 200;  //Hz.  Can be: 50, 100, 200, 400;
+  myIMU.settings.accelSampleRate = 104;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelBandWidth = 400;  //Hz.  Can be: 50, 100, 200, 400;
   myIMU.settings.accelFifoEnabled = 1;  //Set to include accelerometer in the FIFO
   myIMU.settings.accelFifoDecimation = 1;  //set 1 for on /1
   myIMU.settings.tempEnabled = 1;
@@ -127,26 +128,32 @@ void loop()
     myIMU.tick();
     Serial.print(myIMU.scaledXA(), 4);
     Serial.print(",");
+    Serial.print(myIMU.scaledXV(), 4);
+    Serial.print(",");
     Serial.println(myIMU.scaledXX(), 4);
     
-    if( (myIMU.scaledXX() < 0) && (myIMU.scaledXX() > -5000) )
+    if( (myIMU.scaledXX() < 0) && (myIMU.scaledXX() > -500) )
     {
-      testColor.red = (myIMU.scaledXX() * 255 / -5000);
+      testColor.red = (myIMU.scaledXX() * 255 / -500);
+    }
+    if( (myIMU.scaledXX() > 0) && (myIMU.scaledXX() < 500) )
+    {
+      testColor.blue = (myIMU.scaledXX() * 255 / 500);
     }
 	
   }
   if(debugTimer.flagStatus() == PENDING)
   {
     //Get all parameters
-  Serial.print("\nPos:\n");
-  Serial.print(" X = ");
-  Serial.println(myIMU.scaledXX(), 4);
-
-  Serial.print("\nThermometer:\n");
-  Serial.print(" Degrees C = ");
-  Serial.println(myIMU.readTempC(), 4);
-  Serial.print(" Degrees F = ");
-  Serial.println(myIMU.readTempF(), 4);
+//  Serial.print("\nPos:\n");
+//  Serial.print(" X = ");
+//  Serial.println(myIMU.scaledXX(), 4);
+//
+//  Serial.print("\nThermometer:\n");
+//  Serial.print(" Degrees C = ");
+//  Serial.println(myIMU.readTempC(), 4);
+//  Serial.print(" Degrees F = ");
+//  Serial.println(myIMU.readTempF(), 4);
   }  
   
 }
