@@ -16,6 +16,13 @@
 #include "stdint.h"
 #include "SparkFunLSM6DS3.h"
 
+struct PSlice
+{
+	float accel = 0;
+	float velo = 0;
+    float deflect = 0;
+}
+
 //Classes
 class AccelMaths : public LSM6DS3
 {
@@ -31,14 +38,8 @@ private:
 	float vDecay;
 	float xDecay;
 	float gOffset;
-	float lastXA;
-	float lastXV;
-        float lastXX;
-	float XA;
-	float XV;
-        float XX;
-
-
+    
+	PSlice phyStr[10];
 };
 
 
