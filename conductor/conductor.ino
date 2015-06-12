@@ -26,9 +26,10 @@
 
 IntervalTimer myTimer;
 
+TimerClass messageTimer( 10 );
 TimerClass ledOutputTimer( 5 ); //For updating LEDs
-TimerClass stateTickTimer( 10 ); //Do color state maths
-TimerClass accelReadTimer( 10 ); //read the sensor and integrate
+TimerClass stateTickTimer( 2 ); //Do color state maths
+TimerClass accelReadTimer( 2 ); //read the sensor and integrate
 TimerClass debugTimer(1000);
 
 uint16_t msTicks = 0;
@@ -38,10 +39,19 @@ uint8_t msTicksMutex = 1; //start locked out
 
 //**Color state machines**********************//
 #include "colorMixer.h"
+#include "colorMachines.h"
+
+FlashDialog messages;
+
+//**Action Machines***************************//
+#include "actionMachines.h"
+MainMachine mainSM;
+
 
 //**Color pages
 const RGBA8_t background[8] = {30, 5, 0, 255,    20, 12, 10, 255,    10, 12, 20, 255,    0, 5, 30, 255,    0, 5, 30, 255,    10, 12, 20, 255,    20, 12, 10, 255,    30, 5, 0, 255};
 RGBA8_t testColor;
+RGBA8_t messageColor;
 
 //**Accelerometer integration and sensor******//
 #include <SparkFunLSM6DS3.h>
@@ -61,7 +71,7 @@ void setup()
 {
   delay(2000);
 
-  Serial.begin(57600);
+  Serial.begin(115200);
   Serial.println("Program started\n");
 
   // initialize IntervalTimer interrupt stuff
@@ -73,7 +83,7 @@ void setup()
   myIMU.settings.accelEnabled = 1;
   myIMU.settings.accelODROff = 0;  //Set to disable ODR (control sample rate)
   myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
-  myIMU.settings.accelSampleRate = 104;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelSampleRate = 416;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
   myIMU.settings.accelBandWidth = 400;  //Hz.  Can be: 50, 100, 200, 400;
   myIMU.settings.accelFifoEnabled = 1;  //Set to include accelerometer in the FIFO
   myIMU.settings.accelFifoDecimation = 1;  //set 1 for on /1
@@ -83,8 +93,9 @@ void setup()
   outputMixer.begin();
   outputMixer.show();
   
-  testColor.red = 255;
-  testColor.alpha = 128;
+  //messageColor.red = 128;
+  
+  
 }
 
 void loop()
@@ -95,6 +106,7 @@ void loop()
   {
 //**Copy to make a new timer******************//  
 //    msTimerA.update(msTicks);
+	messageTimer.update(msTicks);
     ledOutputTimer.update(msTicks);
 	stateTickTimer.update(msTicks);
 	accelReadTimer.update(msTicks);
@@ -109,6 +121,10 @@ void loop()
 //  {
 //    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
 //  }
+  if(messageTimer.flagStatus() == PENDING)
+  {
+    messages.tick();
+  }
   if(ledOutputTimer.flagStatus() == PENDING)
   {
     //Push the output
@@ -117,29 +133,57 @@ void loop()
     //Reset the field
     outputMixer.clearPage();
     outputMixer.addLayer((RGBA8_t*)background);
+	  //go get newest color
+	if(mainSM.serialOutputEnable == 1 )
+	{
+	  testColor.blue = 64;
+	  messages.enabled = 1;
+	  
+	}
+	else
+	{
+	  testColor.blue = 0;
+	  messages.enabled = 0;
+	}
     outputMixer.orLayer(testColor);
+	  //apply the messages
+	messageColor.red = messages.red >> 1;
+	outputMixer.orLayer(messageColor);
 	
   }
   if(stateTickTimer.flagStatus() == PENDING)
   {
+	mainSM.tick();
+	
   }
   if(accelReadTimer.flagStatus() == PENDING)
   {
     myIMU.tick();
-    Serial.print(myIMU.scaledXA(), 4);
-    Serial.print(",");
-    Serial.print(myIMU.scaledXV(), 4);
-    Serial.print(",");
-    Serial.println(myIMU.scaledXX(), 4);
-    
-    if( (myIMU.scaledXX() < 0) && (myIMU.scaledXX() > -500) )
-    {
-      testColor.red = (myIMU.scaledXX() * 255 / -500);
-    }
-    if( (myIMU.scaledXX() > 0) && (myIMU.scaledXX() < 500) )
-    {
-      testColor.blue = (myIMU.scaledXX() * 255 / 500);
-    }
+    //Serial.print(myIMU.scaledXA(), 4);
+    //Serial.print(",");
+    //Serial.print(myIMU.scaledXV(), 4);
+    //Serial.print(",");
+    //Serial.println(myIMU.scaledXX(), 4);
+
+    //if( (myIMU.scaledXX() < 0) && (myIMU.scaledXX() > -500) )
+    //{
+    //  testColor.red = (myIMU.scaledXX() * 255 / -500);
+    //}
+    //if( (myIMU.scaledXX() > 0) && (myIMU.scaledXX() < 500) )
+    //{
+    //  testColor.blue = (myIMU.scaledXX() * 255 / 500);
+    //}
+	
+	//mainSM.rightIn = myIMU.readFloatAccelZ();
+	mainSM.rightIn = myIMU.rollingAverageZ();
+	
+	
+	if(mainSM.serialOutputEnable == 1)
+	{
+		Serial.print(myIMU.readFloatAccelY(), 4);
+		Serial.print(",");
+	    Serial.println(myIMU.rollingAverage(), 4);
+	}
 	
   }
   if(debugTimer.flagStatus() == PENDING)
@@ -154,6 +198,10 @@ void loop()
 //  Serial.println(myIMU.readTempC(), 4);
 //  Serial.print(" Degrees F = ");
 //  Serial.println(myIMU.readTempF(), 4);
+
+	//Serial.println(mainSM.rightIn, 4);
+	//Serial.println(testColor.red);
+
   }  
   
 }

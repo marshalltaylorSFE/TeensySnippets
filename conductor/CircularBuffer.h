@@ -10,32 +10,30 @@
 //  Created:  May 26, 2015
 //
 //**********************************************************************//
-#ifndef TIMEKEEPER_H_INCLUDED
-#define TIMEKEEPER_H_INCLUDED
+#ifndef CIRCULARBUFFER_H_INCLUDED
+#define CIRCULARBUFFER_H_INCLUDED
+
+#define CIRCULAR_BUFFER_MAX_LENGTH 255
 
 #include "stdint.h"
 
-#define WAITING 0
-#define PENDING 1
-#define UNSERVICED 2
-
-
-#define MAXTIMER 60000
 
 //Classes
-class TimeKeeper
+class CircularBuffer
 {
 public:
-    TimeKeeper( void );
-    void mClear( void );
-    uint16_t mGet( void );
-    void mIncrement( uint8_t );
+    CircularBuffer( uint8_t depthInput );
+	
+	float read( uint8_t );
+	void write( float inputData );
+	void clear( void );
 
-private:
-    uint16_t timeElapsed;
-
+	private:
+	uint8_t topPointer;
+	uint8_t bytesUsed;
+	uint8_t bufferDepth;
+	float buffer[CIRCULAR_BUFFER_MAX_LENGTH];	
 };
 
 
-#endif // FILE_H_INCLUDED
-
+#endif

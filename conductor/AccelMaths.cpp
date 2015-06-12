@@ -15,9 +15,14 @@
 #include "accelMaths.h"
 #include "SparkFunLSM6DS3.h"
 
+#include "CircularBuffer.h"
+
+CircularBuffer myBuffer(50);
+CircularBuffer myBufferZ(50);
+
 //**********************************************************************//
 //
-//  Color Mixer
+//  Accelerometer maths
 //
 //**********************************************************************//
 AccelMaths::AccelMaths( void )
@@ -38,12 +43,17 @@ AccelMaths::AccelMaths( void )
 
 void AccelMaths::tick( void )
 {
+
+  
   //Save the last point
   lastXX = XX;
   lastXV = XV;
   lastXA = XA;
   
   XA = (-1 * (readFloatAccelY() + gOffset))*3;
+  myBuffer.write(readFloatAccelY());
+  myBufferZ.write(readFloatAccelZ());
+
   if(( XA > -0.05 )&&( XA < 0.05 ))
   {
     XA = 0;
@@ -64,6 +74,20 @@ void AccelMaths::tick( void )
   }  
   XV = (lastXV + ((float)msDeltaT) * (XA)) * vDecay;
   XX = (lastXX + ((float)msDeltaT) * (XV)) * xDecay;
+  
+  //Had enough?  Didn't think so.  Do more math
+  debugAverage = 0;
+  for( int i = 0; i < 40; i++)
+  {
+    debugAverage += myBuffer.read(i);
+  }
+  debugAverage = debugAverage / 40;
+  debugAverageZ = 0;
+  for( int i = 0; i < 40; i++)
+  {
+    debugAverageZ += myBufferZ.read(i);
+  }
+  debugAverageZ = debugAverageZ / 40;  
 
 }
 
@@ -73,6 +97,14 @@ float AccelMaths::scaledXA( void )
   return XA;
 }
 
+float AccelMaths::rollingAverage( void )
+{
+  return debugAverage;
+}
+float AccelMaths::rollingAverageZ( void )
+{
+  return debugAverageZ;
+}
 float AccelMaths::scaledXV( void )
 {
  
