@@ -14,11 +14,19 @@
 //Includes
 #include "accelMaths.h"
 #include "SparkFunLSM6DS3.h"
-
+#include "Arduino.h"
 #include "CircularBuffer.h"
 
-CircularBuffer myBuffer(50);
-CircularBuffer myBufferZ(50);
+CircularBuffer upDataBuffer(32);
+CircularBuffer upAverageBuffer(32);
+CircularBuffer rightDataBuffer(32);
+CircularBuffer rightAverageBuffer(32);
+CircularBuffer outDataBuffer(32);
+CircularBuffer outAverageBuffer(32);
+
+CircularBuffer verticalDerivativeBuffer(32);
+
+
 
 //**********************************************************************//
 //
@@ -29,90 +37,66 @@ AccelMaths::AccelMaths( void )
 {
   //LSM6DS3 myIMU;
   msDeltaT = 1;
-  vDecay = 1;
-  xDecay = 1;
-  gOffset = 1;
-  lastXA = 0;
-  lastXV = 0;
-  lastXX = 0;
-  XV = 0;
-  XX = 0;
-  XA = 0;
   
 }
 
 void AccelMaths::tick( void )
 {
-
+  //********Update to the Buffers********//
+  //Start by filling a circular buffer
+  upDataBuffer.write(readFloatAccelY());
+  rightDataBuffer.write(readFloatAccelZ());
+  //outDataBuffer.write(readFloatAccelX());
   
-  //Save the last point
-  lastXX = XX;
-  lastXV = XV;
-  lastXA = XA;
-  
-  XA = (-1 * (readFloatAccelY() + gOffset))*3;
-  myBuffer.write(readFloatAccelY());
-  myBufferZ.write(readFloatAccelZ());
-
-  if(( XA > -0.05 )&&( XA < 0.05 ))
+  //Now average the circular buffer into another
+  float floatTemp = 0;
+  for( int i = 0; i < 30; i++)
   {
-    XA = 0;
-    XV = 0;
-    lastXV= 0;
+    floatTemp += upDataBuffer.read(i);
   }
-  if(XX > 500)
-  {
-    lastXX = 500;
-    XV = 0;
-    lastXV= 0;
-  }  
-  if(XX < -500)
-  {
-    lastXX = -500;
-    XV = 0;
-    lastXV= 0;
-  }  
-  XV = (lastXV + ((float)msDeltaT) * (XA)) * vDecay;
-  XX = (lastXX + ((float)msDeltaT) * (XV)) * xDecay;
+  upAverageBuffer.write(floatTemp / 30);
   
-  //Had enough?  Didn't think so.  Do more math
-  debugAverage = 0;
-  for( int i = 0; i < 40; i++)
+  floatTemp = 0;
+  for( int i = 0; i < 30; i++)
   {
-    debugAverage += myBuffer.read(i);
+    floatTemp += rightDataBuffer.read(i);
   }
-  debugAverage = debugAverage / 40;
-  debugAverageZ = 0;
-  for( int i = 0; i < 40; i++)
-  {
-    debugAverageZ += myBufferZ.read(i);
-  }
-  debugAverageZ = debugAverageZ / 40;  
-
-}
-
-float AccelMaths::scaledXA( void )
-{
- 
-  return XA;
-}
-
-float AccelMaths::rollingAverage( void )
-{
-  return debugAverage;
-}
-float AccelMaths::rollingAverageZ( void )
-{
-  return debugAverageZ;
-}
-float AccelMaths::scaledXV( void )
-{
- 
-  return XV;
-}
-
-float AccelMaths::scaledXX( void )
-{
+  rightAverageBuffer.write(floatTemp / 30);
   
-  return XX;
+  // floatTemp = 0;
+  // for( int i = 0; i < 30; i++)
+  // {
+    // floatTemp += outDataBuffer.read(i);
+  // }
+  // outAverageBuffer.write(floatTemp / 30);
+  
+  //********Do Buffer Specific Calculation********//
+  //Newer minus older
+    // Serial.print("\n");
+	// Serial.print(upAverageBuffer.read(0), 4);
+	// Serial.print(",");
+	// Serial.print(upAverageBuffer.read(1), 4);
+  verticalDerivativeBuffer.write( (upAverageBuffer.read(0) - upAverageBuffer.read(1) ) * 1000);
+  
+}
+
+float AccelMaths::milliDeltaAverageUp( void )
+{
+  return verticalDerivativeBuffer.read(0);
+}
+
+float AccelMaths::milliDeltaDeltaAverageUp( void )
+{
+  float returnValue = (verticalDerivativeBuffer.read(0) - verticalDerivativeBuffer.read(1));
+  return returnValue;
+}
+
+float AccelMaths::rollingAverageUp( void )
+{
+  return upAverageBuffer.read(0);
+}
+
+float AccelMaths::rollingAverageRight( void )
+{
+  return rightAverageBuffer.read(0);
 }

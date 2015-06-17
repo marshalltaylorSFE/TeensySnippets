@@ -1,27 +1,27 @@
 <NotepadPlus>
     <Session activeView="1">
         <mainView activeIndex="0">
-            <File firstVisibleLine="63" xOffset="0" scrollWidth="1260" startPos="2612" endPos="2612" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\conductor.ino" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="657" endPos="667" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timeKeeper.cpp" />
+            <File firstVisibleLine="122" xOffset="0" scrollWidth="1260" startPos="4229" endPos="4229" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\conductor.ino" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="393" endPos="393" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timeKeeper.cpp" />
             <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="453" endPos="453" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timeKeeper.h" />
             <File firstVisibleLine="155" xOffset="0" scrollWidth="1260" startPos="6158" endPos="6158" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\SparkFun_LSM6DS3_Arduino_Library\src\SparkFunLSM6DS3.cpp" />
             <File firstVisibleLine="76" xOffset="0" scrollWidth="1260" startPos="2993" endPos="3009" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\SparkFun_LSM6DS3_Arduino_Library\src\SparkFunLSM6DS3.h" />
             <File firstVisibleLine="905" xOffset="0" scrollWidth="1260" startPos="36249" endPos="36249" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\Adafruit_NeoPixel\Adafruit_NeoPixel.cpp" />
-            <File firstVisibleLine="39" xOffset="0" scrollWidth="1260" startPos="2072" endPos="2072" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\Adafruit_NeoPixel\Adafruit_NeoPixel.h" />
+            <File firstVisibleLine="39" xOffset="0" scrollWidth="777" startPos="2304" endPos="2304" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\Adafruit_NeoPixel\Adafruit_NeoPixel.h" />
         </mainView>
-        <subView activeIndex="11">
-            <File firstVisibleLine="19" xOffset="0" scrollWidth="832" startPos="1524" endPos="1524" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timerModule.cpp" />
+        <subView activeIndex="8">
+            <File firstVisibleLine="19" xOffset="0" scrollWidth="1" startPos="1524" endPos="1524" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timerModule.cpp" />
             <File firstVisibleLine="0" xOffset="0" scrollWidth="832" startPos="584" endPos="584" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timerModule.h" />
             <File firstVisibleLine="75" xOffset="0" scrollWidth="832" startPos="1993" endPos="1993" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMachines.cpp" />
-            <File firstVisibleLine="25" xOffset="0" scrollWidth="832" startPos="921" endPos="921" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMachines.h" />
-            <File firstVisibleLine="33" xOffset="0" scrollWidth="832" startPos="905" endPos="905" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMixer.cpp" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="832" startPos="906" endPos="906" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMixer.h" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="832" startPos="950" endPos="950" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\AccelMaths.cpp" />
-            <File firstVisibleLine="1" xOffset="0" scrollWidth="832" startPos="271" endPos="271" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\AccelMaths.h" />
-            <File firstVisibleLine="33" xOffset="0" scrollWidth="832" startPos="1191" endPos="1191" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\actionMachines.cpp" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="832" startPos="813" endPos="813" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\actionMachines.h" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="1096" startPos="0" endPos="0" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\CircularBuffer.cpp" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="1096" startPos="0" endPos="0" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\CircularBuffer.h" />
+            <File firstVisibleLine="25" xOffset="0" scrollWidth="1096" startPos="991" endPos="991" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMachines.h" />
+            <File firstVisibleLine="33" xOffset="0" scrollWidth="1096" startPos="1237" endPos="1237" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMixer.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="888" startPos="906" endPos="906" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\colorMixer.h" />
+            <File firstVisibleLine="15" xOffset="0" scrollWidth="1096" startPos="723" endPos="723" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\AccelMaths.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1096" startPos="900" endPos="900" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\AccelMaths.h" />
+            <File firstVisibleLine="109" xOffset="0" scrollWidth="1096" startPos="3001" endPos="3001" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\actionMachines.cpp" />
+            <File firstVisibleLine="31" xOffset="0" scrollWidth="888" startPos="1247" endPos="1247" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\actionMachines.h" />
+            <File firstVisibleLine="47" xOffset="0" scrollWidth="1096" startPos="1004" endPos="1014" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\CircularBuffer.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1096" startPos="499" endPos="499" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\CircularBuffer.h" />
         </subView>
     </Session>
 </NotepadPlus>

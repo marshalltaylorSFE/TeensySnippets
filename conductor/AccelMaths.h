@@ -30,31 +30,17 @@ class AccelMaths : public LSM6DS3
 public:
     AccelMaths( void );
 	void tick( void );
-	float scaledXA( void );
-	float scaledXV( void );
-	float scaledXX( void );
-	float rollingAverage( void );
-	float rollingAverageZ( void );
+
 	float debugAverage;
 	float debugAverageZ;	
-	
+	float milliDeltaAverageUp( void );
+	float milliDeltaDeltaAverageUp( void );
+	float rollingAverageUp( void );
+	float rollingAverageRight( void );
 private:
 	int16_t msDeltaT;
-	float vDecay;
-	float xDecay;
-	float gOffset;
-
-	
-	float lastXA;
-	float lastXV;
-    float lastXX;
-	float XA;
-	float XV;
-    float XX;
-
 
 };
 
 
 #endif
-

@@ -46,7 +46,7 @@ FlashDialog messages;
 //**Action Machines***************************//
 #include "actionMachines.h"
 MainMachine mainSM;
-
+BeatStateMachine beatSM;
 
 //**Color pages
 const RGBA8_t background[8] = {30, 5, 0, 255,    20, 12, 10, 255,    10, 12, 20, 255,    0, 5, 30, 255,    0, 5, 30, 255,    10, 12, 20, 255,    20, 12, 10, 255,    30, 5, 0, 255};
@@ -82,9 +82,9 @@ void setup()
   //Call .begin() to configure the IMU
   myIMU.settings.accelEnabled = 1;
   myIMU.settings.accelODROff = 0;  //Set to disable ODR (control sample rate)
-  myIMU.settings.accelRange = 4;      //Max G force readable.  Can be: 2, 4, 8, 16
-  myIMU.settings.accelSampleRate = 416;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
-  myIMU.settings.accelBandWidth = 400;  //Hz.  Can be: 50, 100, 200, 400;
+  myIMU.settings.accelRange = 8;      //Max G force readable.  Can be: 2, 4, 8, 16
+  myIMU.settings.accelSampleRate = 104;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelBandWidth = 200;  //Hz.  Can be: 50, 100, 200, 400;
   myIMU.settings.accelFifoEnabled = 1;  //Set to include accelerometer in the FIFO
   myIMU.settings.accelFifoDecimation = 1;  //set 1 for on /1
   myIMU.settings.tempEnabled = 1;
@@ -121,10 +121,12 @@ void loop()
 //  {
 //    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
 //  }
+  
   if(messageTimer.flagStatus() == PENDING)
   {
     messages.tick();
   }
+  
   if(ledOutputTimer.flagStatus() == PENDING)
   {
     //Push the output
@@ -134,16 +136,25 @@ void loop()
     outputMixer.clearPage();
     outputMixer.addLayer((RGBA8_t*)background);
 	  //go get newest color
-	if(mainSM.serialOutputEnable == 1 )
+	if(mainSM.serialOutputEnable == 0 )
 	{
-	  testColor.blue = 64;
-	  messages.enabled = 1;
+	  testColor.blue = 0;
+	  messages.enabled = 0;
+	  if(beatSM.risingFlag == 1)
+	  {
+	    testColor.green = 255;
+	  }
+	  else
+	  {
+	    testColor.green = 0;
+	  }
 	  
 	}
 	else
 	{
-	  testColor.blue = 0;
-	  messages.enabled = 0;
+	  testColor.green = 0;
+	  testColor.blue = 64;
+	  messages.enabled = 1;
 	}
     outputMixer.orLayer(testColor);
 	  //apply the messages
@@ -154,37 +165,40 @@ void loop()
   if(stateTickTimer.flagStatus() == PENDING)
   {
 	mainSM.tick();
+	beatSM.tick();
+	//Hardcode servicing
+	if( beatSM.exitFlag == 1 )
+	{
+		beatSM.servicedFlag = 1;
+	}
 	
   }
   if(accelReadTimer.flagStatus() == PENDING)
   {
     myIMU.tick();
-    //Serial.print(myIMU.scaledXA(), 4);
-    //Serial.print(",");
-    //Serial.print(myIMU.scaledXV(), 4);
-    //Serial.print(",");
-    //Serial.println(myIMU.scaledXX(), 4);
 
-    //if( (myIMU.scaledXX() < 0) && (myIMU.scaledXX() > -500) )
-    //{
-    //  testColor.red = (myIMU.scaledXX() * 255 / -500);
-    //}
-    //if( (myIMU.scaledXX() > 0) && (myIMU.scaledXX() < 500) )
-    //{
-    //  testColor.blue = (myIMU.scaledXX() * 255 / 500);
-    //}
-	
-	//mainSM.rightIn = myIMU.readFloatAccelZ();
-	mainSM.rightIn = myIMU.rollingAverageZ();
-	
+	mainSM.rightIn = myIMU.rollingAverageRight();
+	beatSM.upIn = myIMU.milliDeltaAverageUp();
+	beatSM.upDeltaIn = myIMU.milliDeltaDeltaAverageUp();
 	
 	if(mainSM.serialOutputEnable == 1)
 	{
-		Serial.print(myIMU.readFloatAccelY(), 4);
+	    Serial.print("\n");
+		//Serial.print(myIMU.readFloatAccelY(), 4);
+		//Serial.print(",");
+	    Serial.print(myIMU.rollingAverageUp(), 4);
 		Serial.print(",");
-	    Serial.println(myIMU.rollingAverage(), 4);
+	    Serial.print(myIMU.milliDeltaAverageUp(), 4);
+		//Serial.print(",");
+	    //Serial.print(myIMU.milliDeltaDeltaAverageUp(), 4);
 	}
-	
+	if(beatSM.risingFlag == 1)
+	{
+	}
+	else
+	{
+	  
+	}
   }
   if(debugTimer.flagStatus() == PENDING)
   {

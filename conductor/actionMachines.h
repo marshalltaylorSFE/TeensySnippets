@@ -26,7 +26,7 @@ enum MMStates {
 
 };
 
-#define DBTICKMS 10;
+//#define DBTICKMS 10;
 
 class MainMachine
 {
@@ -44,6 +44,39 @@ public:
   MMStates state;
 
   MainMachine( void );
+  void tick( void );
+
+};
+
+enum BSMStates {
+  BSMIdle,
+  BSMDownBeatFallingState,
+  BSMDownBeatTimingRiseState,
+  BSMDownBeatHoldOffState,
+  
+};
+
+//#define DBTICKMS 10;
+
+class BeatStateMachine
+{
+public:
+
+  float upIn;
+  float upDeltaIn;
+  
+  uint8_t startFlag;
+  uint8_t exitFlag;
+  uint8_t risingFlag;
+  uint8_t servicedFlag;
+  
+  uint16_t lastTime;
+  
+  TimeKeeper tickTimer;
+  
+  BSMStates state;
+
+  BeatStateMachine( void );
   void tick( void );
 
 };
