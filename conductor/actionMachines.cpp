@@ -142,6 +142,9 @@ void MainMachine::tick( void )
 //
 //  Beat State Machine
 //
+//  This machine processes how a downbeat is detected.
+//  It takes data in through upIn and upDeltaIn.
+//
 //****************************************************************************//
 BeatStateMachine::BeatStateMachine( void )
 {

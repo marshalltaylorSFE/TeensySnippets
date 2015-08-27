@@ -162,7 +162,7 @@ void DownBeat::tick( void )
         }
         break;
     case DBrampUp:
-        if( counter >= 0)
+        if( counter >= 300)
         {
             nextState = DBholdOn;
             counter = 0;

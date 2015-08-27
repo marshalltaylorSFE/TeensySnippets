@@ -49,7 +49,15 @@ MainMachine mainSM;
 BeatStateMachine beatSM;
 
 //**Color pages
-const RGBA8_t background[8] = {30, 5, 0, 255,    20, 12, 10, 255,    10, 12, 20, 255,    0, 5, 30, 255,    0, 5, 30, 255,    10, 12, 20, 255,    20, 12, 10, 255,    30, 5, 0, 255};
+const RGBA8_t background[8] = {
+30, 5, 0, 255,
+20, 12, 10, 255,
+10, 12, 20, 255,
+0, 5, 30, 255,
+0, 5, 30, 255,
+10, 12, 20, 255,
+20, 12, 10, 255,
+30, 5, 0, 255};
 RGBA8_t testColor;
 RGBA8_t messageColor;
 

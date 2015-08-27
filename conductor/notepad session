@@ -4,8 +4,6 @@
             <File firstVisibleLine="122" xOffset="0" scrollWidth="1260" startPos="4229" endPos="4229" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\conductor.ino" />
             <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="393" endPos="393" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timeKeeper.cpp" />
             <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="453" endPos="453" selMode="0" lang="C++" encoding="-1" filename="D:\github\TeensySnippits\conductor\timeKeeper.h" />
-            <File firstVisibleLine="155" xOffset="0" scrollWidth="1260" startPos="6158" endPos="6158" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\SparkFun_LSM6DS3_Arduino_Library\src\SparkFunLSM6DS3.cpp" />
-            <File firstVisibleLine="76" xOffset="0" scrollWidth="1260" startPos="2993" endPos="3009" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\SparkFun_LSM6DS3_Arduino_Library\src\SparkFunLSM6DS3.h" />
             <File firstVisibleLine="905" xOffset="0" scrollWidth="1260" startPos="36249" endPos="36249" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\Adafruit_NeoPixel\Adafruit_NeoPixel.cpp" />
             <File firstVisibleLine="39" xOffset="0" scrollWidth="777" startPos="2304" endPos="2304" selMode="0" lang="C++" encoding="-1" filename="C:\Users\Marshall\Documents\Arduino\libraries\Adafruit_NeoPixel\Adafruit_NeoPixel.h" />
         </mainView>
