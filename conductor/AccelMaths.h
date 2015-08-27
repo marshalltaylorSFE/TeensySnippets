@@ -27,8 +27,9 @@ struct PSlice
 //Classes
 class AccelMaths : public LSM6DS3
 {
-public:
-    AccelMaths( void );
+public: //B(int a) : A(a)
+  //AccelMaths( uint8_t busType ) : LSM6DS3( busType );
+  AccelMaths( uint8_t, uint8_t );// : LSM6DS3( uint8_t, uint8_t );
 	void tick( void );
 
 	float debugAverage;

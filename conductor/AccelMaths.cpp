@@ -33,7 +33,7 @@ CircularBuffer verticalDerivativeBuffer(32);
 //  Accelerometer maths
 //
 //**********************************************************************//
-AccelMaths::AccelMaths( void )
+AccelMaths::AccelMaths( uint8_t busType, uint8_t inputArg ) : LSM6DS3( busType, inputArg )
 {
   //LSM6DS3 myIMU;
   msDeltaT = 1;

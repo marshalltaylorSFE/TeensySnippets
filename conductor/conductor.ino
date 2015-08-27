@@ -59,7 +59,7 @@ RGBA8_t messageColor;
 #include "Wire.h"
 #include "SPI.h"
 
-AccelMaths myIMU;
+AccelMaths myIMU( SPI_MODE, 10 );
 
 //**Color output stuff************************//
 #include <Adafruit_NeoPixel.h>
@@ -78,7 +78,7 @@ void setup()
   myTimer.begin(serviceMS, 1000);  // serviceMS to run every 0.001 seconds
 
   //Select bus if nothing else.
-  myIMU.settings.commInterface = SPI_MODE;
+  //myIMU.settings.commInterface = SPI_MODE;
   //Call .begin() to configure the IMU
   myIMU.settings.accelEnabled = 1;
   myIMU.settings.accelODROff = 0;  //Set to disable ODR (control sample rate)
@@ -89,45 +89,45 @@ void setup()
   myIMU.settings.accelFifoDecimation = 1;  //set 1 for on /1
   myIMU.settings.tempEnabled = 1;
   myIMU.begin();
-  
+
   outputMixer.begin();
   outputMixer.show();
-  
+
   //messageColor.red = 128;
-  
-  
+
+
 }
 
 void loop()
 {
   // main program
-  
-  if( msTicksMutex == 0 )  //Only touch the timers if clear to do so.
-  {
-//**Copy to make a new timer******************//  
-//    msTimerA.update(msTicks);
-	messageTimer.update(msTicks);
-    ledOutputTimer.update(msTicks);
-	stateTickTimer.update(msTicks);
-	accelReadTimer.update(msTicks);
-	debugTimer.update(msTicks);
 
- //Done?  Lock it back up
+  if ( msTicksMutex == 0 ) //Only touch the timers if clear to do so.
+  {
+    //**Copy to make a new timer******************//
+    //    msTimerA.update(msTicks);
+    messageTimer.update(msTicks);
+    ledOutputTimer.update(msTicks);
+    stateTickTimer.update(msTicks);
+    accelReadTimer.update(msTicks);
+    debugTimer.update(msTicks);
+
+    //Done?  Lock it back up
     msTicksMutex = 1;
   }  //The ISR should clear the mutex.
-  
-//**Copy to make a new timer******************//  
-//  if(msTimerA.flagStatus() == PENDING)
-//  {
-//    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
-//  }
-  
-  if(messageTimer.flagStatus() == PENDING)
+
+  //**Copy to make a new timer******************//
+  //  if(msTimerA.flagStatus() == PENDING)
+  //  {
+  //    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
+  //  }
+
+  if (messageTimer.flagStatus() == PENDING)
   {
     messages.tick();
   }
-  
-  if(ledOutputTimer.flagStatus() == PENDING)
+
+  if (ledOutputTimer.flagStatus() == PENDING)
   {
     //Push the output
     outputMixer.mix();
@@ -135,95 +135,95 @@ void loop()
     //Reset the field
     outputMixer.clearPage();
     outputMixer.addLayer((RGBA8_t*)background);
-	  //go get newest color
-	if(mainSM.serialOutputEnable == 0 )
-	{
-	  testColor.blue = 0;
-	  messages.enabled = 0;
-	  if(beatSM.risingFlag == 1)
-	  {
-	    testColor.green = 255;
-	  }
-	  else
-	  {
-	    testColor.green = 0;
-	  }
-	  
-	}
-	else
-	{
-	  testColor.green = 0;
-	  testColor.blue = 64;
-	  messages.enabled = 1;
-	}
+    //go get newest color
+    if (mainSM.serialOutputEnable == 0 )
+    {
+      testColor.blue = 0;
+      messages.enabled = 0;
+      if (beatSM.risingFlag == 1)
+      {
+        testColor.green = 255;
+      }
+      else
+      {
+        testColor.green = 0;
+      }
+
+    }
+    else
+    {
+      testColor.green = 0;
+      testColor.blue = 64;
+      messages.enabled = 1;
+    }
     outputMixer.orLayer(testColor);
-	  //apply the messages
-	messageColor.red = messages.red >> 1;
-	outputMixer.orLayer(messageColor);
-	
+    //apply the messages
+    messageColor.red = messages.red >> 1;
+    outputMixer.orLayer(messageColor);
+
   }
-  if(stateTickTimer.flagStatus() == PENDING)
+  if (stateTickTimer.flagStatus() == PENDING)
   {
-	mainSM.tick();
-	beatSM.tick();
-	//Hardcode servicing
-	if( beatSM.exitFlag == 1 )
-	{
-		beatSM.servicedFlag = 1;
-	}
-	
+    mainSM.tick();
+    beatSM.tick();
+    //Hardcode servicing
+    if ( beatSM.exitFlag == 1 )
+    {
+      beatSM.servicedFlag = 1;
+    }
+
   }
-  if(accelReadTimer.flagStatus() == PENDING)
+  if (accelReadTimer.flagStatus() == PENDING)
   {
     myIMU.tick();
 
-	mainSM.rightIn = myIMU.rollingAverageRight();
-	beatSM.upIn = myIMU.milliDeltaAverageUp();
-	beatSM.upDeltaIn = myIMU.milliDeltaDeltaAverageUp();
-	
-	if(mainSM.serialOutputEnable == 1)
-	{
-	    Serial.print("\n");
-		//Serial.print(myIMU.readFloatAccelY(), 4);
-		//Serial.print(",");
-	    Serial.print(myIMU.rollingAverageUp(), 4);
-		Serial.print(",");
-	    Serial.print(myIMU.milliDeltaAverageUp(), 4);
-		//Serial.print(",");
-	    //Serial.print(myIMU.milliDeltaDeltaAverageUp(), 4);
-	}
-	if(beatSM.risingFlag == 1)
-	{
-	}
-	else
-	{
-	  
-	}
+    mainSM.rightIn = myIMU.rollingAverageRight();
+    beatSM.upIn = myIMU.milliDeltaAverageUp();
+    beatSM.upDeltaIn = myIMU.milliDeltaDeltaAverageUp();
+
+    if (mainSM.serialOutputEnable == 1)
+    {
+      Serial.print("\n");
+      //Serial.print(myIMU.readFloatAccelY(), 4);
+      //Serial.print(",");
+      Serial.print(myIMU.rollingAverageUp(), 4);
+      Serial.print(",");
+      Serial.print(myIMU.milliDeltaAverageUp(), 4);
+      //Serial.print(",");
+      //Serial.print(myIMU.milliDeltaDeltaAverageUp(), 4);
+    }
+    if (beatSM.risingFlag == 1)
+    {
+    }
+    else
+    {
+
+    }
   }
-  if(debugTimer.flagStatus() == PENDING)
+  if (debugTimer.flagStatus() == PENDING)
   {
     //Get all parameters
-//  Serial.print("\nPos:\n");
-//  Serial.print(" X = ");
-//  Serial.println(myIMU.scaledXX(), 4);
-//
-//  Serial.print("\nThermometer:\n");
-//  Serial.print(" Degrees C = ");
-//  Serial.println(myIMU.readTempC(), 4);
-//  Serial.print(" Degrees F = ");
-//  Serial.println(myIMU.readTempF(), 4);
+    //  Serial.print("\nPos:\n");
+    //  Serial.print(" X = ");
+    //  Serial.println(myIMU.scaledXX(), 4);
+    //
+    //  Serial.print("\nThermometer:\n");
+    //  Serial.print(" Degrees C = ");
+    //  Serial.println(myIMU.readTempC(), 4);
+    //  Serial.print(" Degrees F = ");
+    //  Serial.println(myIMU.readTempF(), 4);
 
-	//Serial.println(mainSM.rightIn, 4);
-	//Serial.println(testColor.red);
+    //Serial.println(mainSM.rightIn, 4);
+    //Serial.println(testColor.red);
 
-  }  
-  
+  }
+
 }
 
 void serviceMS(void)
 {
   uint32_t returnVar = 0;
-  if(msTicks >= ( MAXTIMER + MAXINTERVAL ))
+  if (msTicks >= ( MAXTIMER + MAXINTERVAL ))
   {
     returnVar = msTicks - MAXTIMER;
 
@@ -234,7 +234,7 @@ void serviceMS(void)
   }
   msTicks = returnVar;
   msTicksMutex = 0;  //unlock
-  
+
 }
 
 
