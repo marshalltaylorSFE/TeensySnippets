@@ -17,12 +17,17 @@
 #include <Adafruit_NeoPixel.h>
 
 //Structures
-struct RGBA8_t
+class RGBA8
 {
+public:
   uint8_t red;
   uint8_t green;
   uint8_t blue;
   uint8_t alpha;
+  
+  RGBA8( void );
+  void clear( void );
+  
 };
 
 //Classes
@@ -31,12 +36,13 @@ class ColorMixer : public Adafruit_NeoPixel
 public:
     ColorMixer(uint16_t n, uint8_t p=6, uint8_t t=NEO_GRB + NEO_KHZ800);// : Adafruit_NeoPixel(n, p, t);
     void clearPage( void );
-    void addLayer( RGBA8_t );//Color, opacity
-    void addLayer( RGBA8_t * );//Color, opacity
-    void orLayer( RGBA8_t );//Color, opacity
+    void addLayer( RGBA8 );//Color, opacity
+    void addLayer( RGBA8 * );//Color, opacity
+    void orLayer( RGBA8 );//Color, opacity
+	void gradientAddLayer( RGBA8, int16_t, RGBA8, int16_t );
     void mix( void );
 
-    RGBA8_t mainPage[8];
+    RGBA8 mainPage[8];
 	
 private:
 

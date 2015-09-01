@@ -30,6 +30,7 @@ TimerClass messageTimer( 10 );
 TimerClass ledOutputTimer( 5 ); //For updating LEDs
 TimerClass stateTickTimer( 2 ); //Do color state maths
 TimerClass accelReadTimer( 2 ); //read the sensor and integrate
+TimerClass debugTimer(80); //For general output use
 
 uint16_t msTicks = 0;
 uint8_t msTicksMutex = 1; //start locked out
@@ -39,7 +40,7 @@ uint8_t msTicksMutex = 1; //start locked out
 //**Color state machines**********************//
 #include "colorMixer.h"
 #include "colorMachines.h"
-
+int16_t bgOffset = 0;
 FlashDialog messages;
 
 //**Action Machines***************************//
@@ -48,17 +49,15 @@ MainMachine mainSM;
 BeatStateMachine beatSM;
 
 //**Color pages
-const RGBA8_t background[8] = {
-30, 5, 0, 255,
-20, 12, 10, 255,
-10, 12, 20, 255,
-0, 5, 30, 255,
-0, 5, 30, 255,
-10, 12, 20, 255,
-20, 12, 10, 255,
-30, 5, 0, 255};
-RGBA8_t testColor;
-RGBA8_t messageColor;
+// const RGBA8 background[8] = {
+// 30, 5, 0, 255,
+// 20, 12, 10, 255,
+// 10, 12, 20, 255,
+// 0, 5, 30, 255,
+// 0, 5, 30, 255,
+// 10, 12, 20, 255,
+// 20, 12, 10, 255,
+// 30, 5, 0, 255};
 
 //**Accelerometer integration and sensor******//
 #include <SparkFunLSM6DS3.h>
@@ -118,7 +117,7 @@ void loop()
     stateTickTimer.update(msTicks);
     accelReadTimer.update(msTicks);
     debugTimer.update(msTicks);
-
+	
     //Done?  Lock it back up
     msTicksMutex = 1;
   }  //The ISR should clear the mutex.
@@ -138,20 +137,51 @@ void loop()
   {
     //Reset the field
     outputMixer.clearPage();
-	//Apply an always on background
-    outputMixer.addLayer((RGBA8_t*)background);
-    //Set the 'testColor'
-    testColor.green = 0;
-    testColor.blue = 64;
-    outputMixer.orLayer(testColor);
-    
-	//Allow messages.?
-	messages.enabled = 1;
-    //apply the messages
-    messageColor.red = messages.red >> 1;
-    outputMixer.orLayer(messageColor);
+	//Start with a background if you want
+    //outputMixer.addLayer((RGBA8*)background); //Background const array or somethin'
 
-    //Push the output
+	//Build an image here
+	//  Define color registers
+	RGBA8 bgColor1;
+	bgColor1.green = 255;
+	bgColor1.blue = 255;
+	bgColor1.red = 255;
+	bgColor1.alpha = 10;
+
+	RGBA8 point1;
+	RGBA8 point2;
+	
+	RGBA8 testField[8];
+	testField[2].clear();
+	testField[2].red = 100;
+	testField[2].alpha = 255;
+	
+	//  Apply operations
+	outputMixer.clearPage();
+	outputMixer.addLayer(bgColor1);
+	//outputMixer.addLayer(testField);
+
+	testField[2].clear();
+	testField[2].green = 100;
+	testField[2].alpha = 255;
+	//outputMixer.addLayer(testField);
+	
+	point1.green = 0;
+	point1.blue = 80;
+	point1.red = 0;
+	point1.alpha = 70;
+	
+	point2.green = 0;
+	point2.blue = 0;
+	point2.red = 80;
+	point2.alpha = 70;
+	
+	outputMixer.gradientAddLayer( point1, 7 + bgOffset, point2 , 4 + bgOffset );
+	outputMixer.gradientAddLayer( point1, 0 + bgOffset, point2 , 3 + bgOffset );
+	outputMixer.gradientAddLayer( point1, -1 + bgOffset, point2, -4 + bgOffset );
+	outputMixer.gradientAddLayer( point1, -8 + bgOffset, point2, -5 + bgOffset );
+	
+	//Push the output
     outputMixer.mix();
     outputMixer.show();
 
@@ -189,6 +219,11 @@ void loop()
   }
   if (debugTimer.flagStatus() == PENDING)
   {
+	bgOffset = bgOffset + 1;
+	if( bgOffset > 7 )
+	{
+		bgOffset = 0;
+	}
     //Get all parameters
     //  Serial.print("\nPos:\n");
     //  Serial.print(" X = ");

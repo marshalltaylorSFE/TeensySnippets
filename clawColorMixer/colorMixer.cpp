@@ -15,6 +15,24 @@
 #include "colorMixer.h"
 #include <Adafruit_NeoPixel.h>
 
+RGBA8::RGBA8( void )
+{
+	red = 0;
+	green = 0;
+	blue = 0;
+	alpha = 0;
+	
+}
+
+void RGBA8::clear( void )
+{
+	red = 0;
+	green = 0;
+	blue = 0;
+	alpha = 0;
+	
+}
+
 //**********************************************************************//
 //
 //  Color Mixer
@@ -44,26 +62,28 @@ void ColorMixer::clearPage( void )
 
 }
 
-void ColorMixer::addLayer( RGBA8_t inputColor )
+void ColorMixer::addLayer( RGBA8 inputColor )
 {
   for (int i = 0; i < 8; i++)
   {
-
+    mainPage[i].red = (((uint16_t)inputColor.red * (uint16_t)inputColor.alpha) >> 8 ) + (((uint16_t)mainPage[i].red * ( (uint16_t)255 - inputColor.alpha)) >> 8 );
+    mainPage[i].green = (((uint16_t)inputColor.green * (uint16_t)inputColor.alpha) >> 8 ) + (((uint16_t)mainPage[i].green * ( (uint16_t)255 - inputColor.alpha)) >> 8 );
+    mainPage[i].blue = (((uint16_t)inputColor.blue * (uint16_t)inputColor.alpha) >> 8 ) + (((uint16_t)mainPage[i].blue * ( (uint16_t)255 - inputColor.alpha)) >> 8 );
   }
 
 }
 
-void ColorMixer::addLayer( RGBA8_t * inputColorMatrix )
+void ColorMixer::addLayer( RGBA8 * inputColorMatrix )
 {
   for (int i = 0; i < 8; i++)
   {
-    mainPage[i].red = inputColorMatrix[i].red;
-    mainPage[i].green = inputColorMatrix[i].green;
-    mainPage[i].blue = inputColorMatrix[i].blue;
+    mainPage[i].red = (((uint16_t)inputColorMatrix[i].red * (uint16_t)inputColorMatrix[i].alpha) >> 8 ) + (((uint16_t)mainPage[i].red * ( (uint16_t)255 - inputColorMatrix[i].alpha)) >> 8 );
+    mainPage[i].green = (((uint16_t)inputColorMatrix[i].green * (uint16_t)inputColorMatrix[i].alpha) >> 8 ) + (((uint16_t)mainPage[i].green * ( (uint16_t)255 - inputColorMatrix[i].alpha)) >> 8 );
+    mainPage[i].blue = (((uint16_t)inputColorMatrix[i].blue * (uint16_t)inputColorMatrix[i].alpha) >> 8 ) + (((uint16_t)mainPage[i].blue * ( (uint16_t)255 - inputColorMatrix[i].alpha)) >> 8 );
   }
 
 }
-void ColorMixer::orLayer( RGBA8_t inputColor )
+void ColorMixer::orLayer( RGBA8 inputColor )
 {
   for (int i = 0; i < 8; i++)
   {
@@ -81,6 +101,86 @@ void ColorMixer::orLayer( RGBA8_t inputColor )
     }
   }
 
+}
+
+void ColorMixer::gradientAddLayer( RGBA8 point1Color, int16_t point1Position, RGBA8 point2Color, int16_t point2Position )
+{
+	//sanitize
+	if( point1Position > 20 )
+	{
+		point1Position = 20;
+	}
+	if( point1Position < -20 )
+	{
+		point1Position = -20;
+	}
+	if( point2Position > 20 )
+	{
+		point2Position = 20;
+	}
+	if( point2Position < -20 )
+	{
+		point2Position = -20;
+	}
+	//Make sure position two is always greater than position 1
+	if( point1Position > point2Position ) //then swap them
+	{
+		int16_t swapPosition = point2Position;
+		point2Position = point1Position;
+		point1Position = swapPosition;
+		RGBA8 swapColor = point2Color;
+		point2Color = point1Color;
+		point1Color = swapColor;
+	}
+	
+	//Temporary matrix
+	RGBA8 outField[8];
+	
+
+	//Calc line for alpha
+	int16_t slope = ((int16_t)point2Color.alpha - (int16_t)point1Color.alpha ) / ( point2Position - point1Position ); //dHeight / dX
+	for (int i = point1Position; i <= point2Position; i++)
+	{
+		if( ( i >= 0)&&( i <= 7 ) )
+		{
+			outField[i].alpha = point1Color.alpha + ((i - point1Position) * slope);
+		}
+	}
+
+	//Calc line for red
+	slope = ((int16_t)point2Color.red - (int16_t)point1Color.red ) / ( point2Position - point1Position ); //dHeight / dX
+	for (int i = point1Position; i <= point2Position; i++)
+	{
+		if( ( i >= 0)&&( i <= 7 ) )
+		{
+			outField[i].red = point1Color.red + ((i - point1Position) * slope);
+		}
+	}
+
+	//Calc line for green
+	slope = ((int16_t)point2Color.green - (int16_t)point1Color.green ) / ( point2Position - point1Position ); //dHeight / dX
+	for (int i = point1Position; i <= point2Position; i++)
+	{
+		if( ( i >= 0)&&( i <= 7 ) )
+		{
+			outField[i].green = point1Color.green + ((i - point1Position) * slope);
+		}
+	}
+
+	//Calc line for blue
+	slope = ((int16_t)point2Color.blue - (int16_t)point1Color.blue ) / ( point2Position - point1Position ); //dHeight / dX
+	for (int i = point1Position; i <= point2Position; i++)
+	{
+		if( ( i >= 0)&&( i <= 7 ) )
+		{
+		outField[i].blue = point1Color.blue + ((i - point1Position) * slope);
+		}
+	}
+	
+	//Call the mixer
+	addLayer(outField);
+	
+	
 }
 
 void ColorMixer::mix( void )

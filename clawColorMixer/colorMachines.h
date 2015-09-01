@@ -46,12 +46,35 @@ public:
 
 };
 
+
+
 enum DBStates {
   DBidle,
   DBrampUp,
   DBholdOn,
   DBrampDown
 
+};
+
+#define DBTICKMS 10;
+
+class DownBeat
+{
+public:
+
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
+
+  uint8_t enabled;
+  uint16_t counter;
+
+  DBStates state;
+
+  DownBeat( void );
+  void enable( uint8_t );
+  void tick( void );
+  
 };
 
 #endif
