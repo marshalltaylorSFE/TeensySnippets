@@ -221,9 +221,18 @@ void loop()
 			}
 		}
 		
-		outputMixer.addLayer( redWash.outputColor );
-		outputMixer.addLayer( greenWash.outputColor );
-		outputMixer.addLayer( blueWash.outputColor );
+		point1.red = ((uint16_t)redWash.outputColor.red * (uint16_t)redWash.outputColor.alpha) >> 8;
+		point1.green = ((uint16_t)greenWash.outputColor.green * (uint16_t)greenWash.outputColor.alpha) >> 8;
+		point1.blue = ((uint16_t)blueWash.outputColor.blue * (uint16_t)blueWash.outputColor.alpha) >> 8;
+		
+		//get biggest alpha
+		uint8_t maxAlpha = 0;
+		if( redWash.outputColor.alpha > maxAlpha ) maxAlpha = redWash.outputColor.alpha;
+		if( greenWash.outputColor.alpha > maxAlpha ) maxAlpha = greenWash.outputColor.alpha;
+		if( blueWash.outputColor.alpha > maxAlpha ) maxAlpha = blueWash.outputColor.alpha;
+		point1.alpha = maxAlpha;
+		
+		outputMixer.addLayer( point1 );
 
 		//Push the output
 		outputMixer.mix();
@@ -245,21 +254,35 @@ void loop()
 	{
 		myIMU.tick();
 
-		mainSM.rightIn = myIMU.rollingAverageRight();
-		beatSM.upIn = myIMU.milliDeltaAverageUp();
-		beatSM.upDeltaIn = myIMU.milliDeltaDeltaAverageUp();
-
-		if (mainSM.serialOutputEnable == 1)
+		//mainSM.rightIn = myIMU.rollingAverageRight();
+		//beatSM.upIn = myIMU.milliDeltaAverageUp();
+		//beatSM.upDeltaIn = myIMU.milliDeltaDeltaAverageUp();
+        //
+		//if (mainSM.serialOutputEnable == 1)
+		//{
+		//	Serial.print("\n");
+		//}
+		//if (beatSM.risingFlag == 1)
+		//{
+		//}
+		//else
+		//{
+        //
+		//}
+		
+		//Serial.println( myIMU.xMilliDeltaAverage() );
+		if(( myIMU.xMilliDeltaAverage() > 45 )||( myIMU.xMilliDeltaAverage() < -45 ))
 		{
-			Serial.print("\n");
+			greenWash.trigger();
 		}
-		if (beatSM.risingFlag == 1)
+		if(( myIMU.yMilliDeltaAverage() > 45 )||( myIMU.yMilliDeltaAverage() < -45 ))
 		{
+			redWash.trigger();
 		}
-		else
+		if(( myIMU.zMilliDeltaAverage() > 45 )||( myIMU.zMilliDeltaAverage() < -45 ))
 		{
-
-		}
+			blueWash.trigger();
+		}		
 	}
 	if (bootSequenceTimer.flagStatus() == PENDING)
 	{
@@ -269,7 +292,7 @@ void loop()
 		}
 		else
 		{
-			bootSequenceCounter = 0;
+			//bootSequenceCounter = 0;
 		}
 	}
 	if (sparkleTimer.flagStatus() == PENDING)
@@ -333,15 +356,15 @@ void loop()
 		tempTimer++;
 		if( tempTimer == 1000 )
 		{
-			greenWash.trigger();
+			//greenWash.trigger();
 		}
 		if( tempTimer == 1200 )
 		{
-			redWash.trigger();
+			//redWash.trigger();
 		}
 		if( tempTimer == 1300 )
 		{
-			blueWash.trigger();
+			//blueWash.trigger();
 		}
 		if( tempTimer > 1355 )
 		{

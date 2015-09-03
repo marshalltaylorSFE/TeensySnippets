@@ -65,9 +65,9 @@ public:
 
   RGBA8 outputColor; //Output
   RGBA8 targetColor;
-  uint8_t aRate; // int in number of 10ms intervals (100 is 1 second)
-  uint8_t rRate; // int in number of 10ms intervals (100 is 1 second)
-  uint8_t hold; // also in number of intervals
+  uint16_t aRate; // int in number of 10ms intervals (100 is 1 second)
+  uint16_t rRate; // int in number of 10ms intervals (100 is 1 second)
+  uint16_t hold; // also in number of intervals
   
   uint8_t triggered;
   uint16_t counter;

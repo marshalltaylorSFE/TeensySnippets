@@ -20,28 +20,29 @@ struct PSlice
 {
 	float accel = 0;
 	float velo = 0;
-    float deflect = 0;
+	float deflect = 0;
 	
 };
+
 
 //Classes
 class AccelMaths : public LSM6DS3
 {
 public: //B(int a) : A(a)
-  //AccelMaths( uint8_t busType ) : LSM6DS3( busType );
-  AccelMaths( uint8_t, uint8_t );// : LSM6DS3( uint8_t, uint8_t );
+	//AccelMaths( uint8_t busType ) : LSM6DS3( busType );
+	AccelMaths( uint8_t, uint8_t );// : LSM6DS3( uint8_t, uint8_t );
 	void tick( void );
 
-	float debugAverage;
-	float debugAverageZ;	
-	float milliDeltaAverageUp( void );
-	float milliDeltaDeltaAverageUp( void );
-	float rollingAverageUp( void );
-	float rollingAverageRight( void );
+	//Use these methods to get data from the system
+	float xMilliDeltaAverage( void );
+	float xRollingAverage( void );
+	float yMilliDeltaAverage( void );
+	float yRollingAverage( void );
+	float zMilliDeltaAverage( void );
+	float zRollingAverage( void );
+
 private:
-	int16_t msDeltaT;
 
 };
-
 
 #endif

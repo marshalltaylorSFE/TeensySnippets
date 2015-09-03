@@ -17,16 +17,23 @@
 #include "Arduino.h"
 #include "CircularBuffer.h"
 
-CircularBuffer upDataBuffer(32);
-CircularBuffer upAverageBuffer(32);
-CircularBuffer rightDataBuffer(32);
-CircularBuffer rightAverageBuffer(32);
-CircularBuffer outDataBuffer(32);
-CircularBuffer outAverageBuffer(32);
+//Looking out at arm,
+// -x<--->x
+//
+//     y
+//     |
+//    -y
+//
+//     z
+//    -Z (points away from you)
 
-CircularBuffer verticalDerivativeBuffer(32);
 
-
+CircularBuffer xDataBuffer(32);
+CircularBuffer xAverageBuffer(32);
+CircularBuffer yDataBuffer(32);
+CircularBuffer yAverageBuffer(32);
+CircularBuffer zDataBuffer(32);
+CircularBuffer zAverageBuffer(32);
 
 //**********************************************************************//
 //
@@ -36,7 +43,7 @@ CircularBuffer verticalDerivativeBuffer(32);
 AccelMaths::AccelMaths( uint8_t busType, uint8_t inputArg ) : LSM6DS3( busType, inputArg )
 {
   //LSM6DS3 myIMU;
-  msDeltaT = 1;
+
   
 }
 
@@ -44,59 +51,66 @@ void AccelMaths::tick( void )
 {
   //********Update to the Buffers********//
   //Start by filling a circular buffer
-  upDataBuffer.write(readFloatAccelY());
-  rightDataBuffer.write(readFloatAccelZ());
-  //outDataBuffer.write(readFloatAccelX());
+  yDataBuffer.write(readFloatAccelY());
+  xDataBuffer.write(readFloatAccelZ());
+  zDataBuffer.write(readFloatAccelX());
   
   //Now average the circular buffer into another
   float floatTemp = 0;
   for( int i = 0; i < 30; i++)
   {
-    floatTemp += upDataBuffer.read(i);
+    floatTemp += xDataBuffer.read(i);
   }
-  upAverageBuffer.write(floatTemp / 30);
+  xAverageBuffer.write(floatTemp / 30);
   
   floatTemp = 0;
   for( int i = 0; i < 30; i++)
   {
-    floatTemp += rightDataBuffer.read(i);
+    floatTemp += yDataBuffer.read(i);
   }
-  rightAverageBuffer.write(floatTemp / 30);
+  yAverageBuffer.write(floatTemp / 30);
   
-  // floatTemp = 0;
-  // for( int i = 0; i < 30; i++)
-  // {
-    // floatTemp += outDataBuffer.read(i);
-  // }
-  // outAverageBuffer.write(floatTemp / 30);
-  
-  //********Do Buffer Specific Calculation********//
-  //Newer minus older
-    // Serial.print("\n");
-	// Serial.print(upAverageBuffer.read(0), 4);
-	// Serial.print(",");
-	// Serial.print(upAverageBuffer.read(1), 4);
-  verticalDerivativeBuffer.write( (upAverageBuffer.read(0) - upAverageBuffer.read(1) ) * 1000);
+  floatTemp = 0;
+  for( int i = 0; i < 30; i++)
+  {
+    floatTemp += zDataBuffer.read(i);
+  }
+  zAverageBuffer.write(floatTemp / 30);
   
 }
 
-float AccelMaths::milliDeltaAverageUp( void )
+//X
+float AccelMaths::xMilliDeltaAverage( void )
 {
-  return verticalDerivativeBuffer.read(0);
+	float temp = (xAverageBuffer.read(0) - xAverageBuffer.read(1) ) * 1000;
+  return temp;
 }
 
-float AccelMaths::milliDeltaDeltaAverageUp( void )
+float AccelMaths::xRollingAverage( void )
 {
-  float returnValue = (verticalDerivativeBuffer.read(0) - verticalDerivativeBuffer.read(1));
-  return returnValue;
+  return xAverageBuffer.read(0);
 }
 
-float AccelMaths::rollingAverageUp( void )
+//Y
+float AccelMaths::yMilliDeltaAverage( void )
 {
-  return upAverageBuffer.read(0);
+	float temp = (yAverageBuffer.read(0) - yAverageBuffer.read(1) ) * 1000;
+  return temp;
 }
 
-float AccelMaths::rollingAverageRight( void )
+float AccelMaths::yRollingAverage( void )
 {
-  return rightAverageBuffer.read(0);
+  return yAverageBuffer.read(0);
+}
+
+//Z
+float AccelMaths::zMilliDeltaAverage( void )
+{
+	float temp = (zAverageBuffer.read(0) - zAverageBuffer.read(1) ) * 1000;
+  return temp;
+}
+
+float AccelMaths::zRollingAverage( void )
+{
+  return zAverageBuffer.read(0);
 }

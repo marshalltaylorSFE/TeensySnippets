@@ -126,9 +126,9 @@ WashOut::WashOut( void )
 {
   triggered = 0;
   counter = 0;
-  aRate = 10;
-  rRate = 80;
-  hold = 20;
+  aRate = 100;
+  rRate = 800;
+  hold = 200;
 
   state = WOidle;
 
@@ -148,7 +148,7 @@ void WashOut::trigger( void )
 
 void WashOut::tick( void )
 {
-    counter += 1; //10 ms per tick
+    counter += 10; //10 ms per tick
     if(counter > 10000)
     {
         counter = 10000;
@@ -156,6 +156,7 @@ void WashOut::tick( void )
 
     //Now do the states.
     WOStates nextState = state;
+	int16_t tempInt = 0;
     switch( state )
     {
     case WOidle:
@@ -167,15 +168,21 @@ void WashOut::tick( void )
         }
         break;
     case WOrampUp:
-        if( counter >= aRate)
+        tempInt = outputColor.alpha + (255 / ( aRate / 10 ));
+		if( tempInt > targetColor.alpha )  //if full
+		{
+			outputColor.alpha = targetColor.alpha;
+			nextState = WOholdOn;  //move on
+		}
+		else
+		{
+			outputColor.alpha = tempInt;
+		}
+		if( triggered == 1 )
         {
-            nextState = WOholdOn;
+			triggered = 0;
+            nextState = WOrampUp;
             counter = 0;
-        }
-        else
-        {
-            outputColor.alpha = targetColor.alpha * (uint32_t)counter / aRate;
-
         }
         break;
     case WOholdOn:
@@ -183,6 +190,12 @@ void WashOut::tick( void )
         {
             nextState = WOrampDown;
             counter = 0;
+        }
+		if( triggered == 1 )
+        {
+			triggered = 0;
+            nextState = WOrampUp;
+            //counter = 0;
         }
         break;
     case WOrampDown:
@@ -194,6 +207,12 @@ void WashOut::tick( void )
         else
         {
             outputColor.alpha = targetColor.alpha - targetColor.alpha * (uint32_t)counter / rRate;
+        }
+		if( triggered == 1 )
+        {
+			triggered = 0;
+            nextState = WOrampUp;
+            counter = 0;
         }
         break;
     default:
