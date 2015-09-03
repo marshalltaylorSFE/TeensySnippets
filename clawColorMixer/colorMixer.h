@@ -17,6 +17,9 @@
 #include <Adafruit_NeoPixel.h>
 
 //Structures
+
+//Classes
+
 class RGBA8
 {
 public:
@@ -30,7 +33,23 @@ public:
   
 };
 
-//Classes
+class BrushPixel : public RGBA8
+{
+public:
+	float intensity;
+	float maxIntensity;
+	float rate;
+	uint8_t sideWall;
+	BrushPixel( void )
+	{
+		sideWall = 0;
+		intensity = 0;
+		maxIntensity = 0;
+		rate = -0.05;
+	}
+	
+};
+
 class ColorMixer : public Adafruit_NeoPixel
 {
 public:

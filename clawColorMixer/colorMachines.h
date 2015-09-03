@@ -14,6 +14,7 @@
 #define COLORMACHINES_H_INCLUDED
 
 #include "stdint.h"
+#include "colorMixer.h"
 
 enum FDStates {
   FDidle,
@@ -48,31 +49,33 @@ public:
 
 
 
-enum DBStates {
-  DBidle,
-  DBrampUp,
-  DBholdOn,
-  DBrampDown
+enum WOStates {
+  WOidle,
+  WOrampUp,
+  WOholdOn,
+  WOrampDown
 
 };
 
-#define DBTICKMS 10;
+#define WOTICKMS 10;
 
-class DownBeat
+class WashOut
 {
 public:
 
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
-
-  uint8_t enabled;
+  RGBA8 outputColor; //Output
+  RGBA8 targetColor;
+  uint8_t aRate; // int in number of 10ms intervals (100 is 1 second)
+  uint8_t rRate; // int in number of 10ms intervals (100 is 1 second)
+  uint8_t hold; // also in number of intervals
+  
+  uint8_t triggered;
   uint16_t counter;
 
-  DBStates state;
+  WOStates state;
 
-  DownBeat( void );
-  void enable( uint8_t );
+  WashOut( void );
+  void trigger( void );
   void tick( void );
   
 };

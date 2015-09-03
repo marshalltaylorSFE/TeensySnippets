@@ -119,83 +119,85 @@ void FlashDialog::tick( void )
 
 //****************************************************************************//
 //
-//  DownBeat
+//  WashOut
 //
 //****************************************************************************//
-DownBeat::DownBeat( void )
+WashOut::WashOut( void )
 {
-  red = 0;
-  green = 0;
-  blue = 0;
-
-  enabled = 0;
+  triggered = 0;
   counter = 0;
+  aRate = 10;
+  rRate = 80;
+  hold = 20;
 
-  state = DBidle;
+  state = WOidle;
 
 }
 
-void DownBeat::enable( uint8_t inputEnable )
+void WashOut::trigger( void )
 {
     //Set enable state
-    enabled = inputEnable;
+    triggered = 1;
+	//save alpha
+	outputColor.red = targetColor.red;
+	outputColor.green = targetColor.green;
+	outputColor.blue = targetColor.blue;
+
 
 }
 
-void DownBeat::tick( void )
+void WashOut::tick( void )
 {
-    counter += 10; //10 ms per tick
+    counter += 1; //10 ms per tick
     if(counter > 10000)
     {
         counter = 10000;
     }
 
     //Now do the states.
-    DBStates nextState = state;
+    WOStates nextState = state;
     switch( state )
     {
-    case DBidle:
-        if( enabled == 1 )
+    case WOidle:
+        if( triggered == 1 )
         {
-            nextState = DBrampUp;
+			triggered = 0;
+            nextState = WOrampUp;
             counter = 0;
         }
         break;
-    case DBrampUp:
-        if( counter >= 300)
+    case WOrampUp:
+        if( counter >= aRate)
         {
-            nextState = DBholdOn;
+            nextState = WOholdOn;
             counter = 0;
         }
         else
         {
-            green = 255 * (uint32_t)counter / 300;
+            outputColor.alpha = targetColor.alpha * (uint32_t)counter / aRate;
+
         }
         break;
-    case DBholdOn:
-        if( counter > 40)
+    case WOholdOn:
+        if( counter > hold)
         {
-            nextState = DBrampDown;
+            nextState = WOrampDown;
+            counter = 0;
+        }
+        break;
+    case WOrampDown:
+        if( counter > rRate)
+        {
+            nextState = WOidle;
             counter = 0;
         }
         else
         {
-            green = 255;
-        }
-        break;
-    case DBrampDown:
-        if( counter > 40)
-        {
-            nextState = DBidle;
-            counter = 0;
-        }
-        else
-        {
-            green = 255 - 255 * (uint32_t)counter / 40;
+            outputColor.alpha = targetColor.alpha - targetColor.alpha * (uint32_t)counter / rRate;
         }
         break;
     default:
-        nextState = DBidle;
+        nextState = WOidle;
         break;
     }
     state = nextState;

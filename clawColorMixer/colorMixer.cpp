@@ -33,6 +33,7 @@ void RGBA8::clear( void )
 	
 }
 
+
 //**********************************************************************//
 //
 //  Color Mixer
@@ -64,12 +65,16 @@ void ColorMixer::clearPage( void )
 
 void ColorMixer::addLayer( RGBA8 inputColor )
 {
-  for (int i = 0; i < 8; i++)
-  {
-    mainPage[i].red = (((uint16_t)inputColor.red * (uint16_t)inputColor.alpha) >> 8 ) + (((uint16_t)mainPage[i].red * ( (uint16_t)255 - inputColor.alpha)) >> 8 );
-    mainPage[i].green = (((uint16_t)inputColor.green * (uint16_t)inputColor.alpha) >> 8 ) + (((uint16_t)mainPage[i].green * ( (uint16_t)255 - inputColor.alpha)) >> 8 );
-    mainPage[i].blue = (((uint16_t)inputColor.blue * (uint16_t)inputColor.alpha) >> 8 ) + (((uint16_t)mainPage[i].blue * ( (uint16_t)255 - inputColor.alpha)) >> 8 );
-  }
+	//Temporary matrix
+	RGBA8 outField[8];
+	
+	for( int i = 0; i < 8; i++ )
+	{
+		outField[i] = inputColor;
+	}
+	
+	//Call the mixer
+	addLayer(outField);
 
 }
 
