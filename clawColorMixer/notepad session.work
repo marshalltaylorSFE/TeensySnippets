@@ -1,0 +1,23 @@
+<NotepadPlus>
+    <Session activeView="1">
+        <mainView activeIndex="0">
+            <File firstVisibleLine="122" xOffset="0" scrollWidth="1260" startPos="4229" endPos="4229" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\clawColorMixer.ino" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="393" endPos="393" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\timeKeeper.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1260" startPos="453" endPos="453" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\timeKeeper.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+        </mainView>
+        <subView activeIndex="8">
+            <File firstVisibleLine="19" xOffset="0" scrollWidth="1" startPos="1524" endPos="1524" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\timerModule.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="832" startPos="584" endPos="584" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\timerModule.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="75" xOffset="0" scrollWidth="832" startPos="1993" endPos="1993" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\colorMachines.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="25" xOffset="0" scrollWidth="1096" startPos="991" endPos="991" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\colorMachines.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="33" xOffset="0" scrollWidth="1096" startPos="1237" endPos="1237" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\colorMixer.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="888" startPos="906" endPos="906" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\colorMixer.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="15" xOffset="0" scrollWidth="1096" startPos="723" endPos="723" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\AccelMaths.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1096" startPos="900" endPos="900" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\AccelMaths.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="109" xOffset="0" scrollWidth="1096" startPos="3001" endPos="3001" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\actionMachines.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="31" xOffset="0" scrollWidth="888" startPos="1247" endPos="1247" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\actionMachines.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="47" xOffset="0" scrollWidth="1096" startPos="1004" endPos="1014" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\CircularBuffer.cpp" backupFilePath="" originalFileLastModifTimestamp="0" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1096" startPos="499" endPos="499" selMode="0" lang="C++" encoding="-1" filename="C:\github\TeensySnippits\clawColorMixer\CircularBuffer.h" backupFilePath="" originalFileLastModifTimestamp="0" />
+        </subView>
+    </Session>
+</NotepadPlus>
