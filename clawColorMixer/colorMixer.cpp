@@ -183,6 +183,48 @@ void ColorMixer::gradientAddLayer( RGBA8 point1Color, int16_t point1Position, RG
 	
 }
 
+void ColorMixer::brush( int8_t position, RGBA8 color, int8_t sideWall )
+{
+	//Draw two lines
+	RGBA8 sidePixel;
+	sidePixel = color;
+	sidePixel.alpha = sidePixel.alpha >> 1;
+	
+	gradientAddLayer( color, position, sidePixel, position + sideWall );
+	
+	gradientAddLayer( color, position, sidePixel, position - sideWall );
+	
+	
+}
+
+void ColorMixer::rotate( int8_t offset )
+{
+	//Temporary matrix
+	RGBA8 outField[8];
+	//Temp offset
+	int8_t offsetVector = 0;
+	
+	for( int i = 0; i < 8; i++ )
+	{
+		//roll over
+		offsetVector = i + offset;
+		while( offsetVector > 7 )
+		{
+			offsetVector = offsetVector - 8;
+		}
+		while( offsetVector < 0 )
+		{
+			offsetVector = offsetVector + 8;
+		}
+
+		outField[i] = mainPage[offsetVector];
+		outField[i].alpha = 255;
+	}
+	
+	//Call the mixer
+	addLayer(outField);
+}
+
 void ColorMixer::mix( void )
 {
   for (int i = 0; i < 8; i++)

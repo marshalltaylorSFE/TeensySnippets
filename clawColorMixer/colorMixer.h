@@ -36,10 +36,12 @@ class ColorMixer : public Adafruit_NeoPixel
 public:
     ColorMixer(uint16_t n, uint8_t p=6, uint8_t t=NEO_GRB + NEO_KHZ800);// : Adafruit_NeoPixel(n, p, t);
     void clearPage( void );
-    void addLayer( RGBA8 );//Color, opacity
-    void addLayer( RGBA8 * );//Color, opacity
-    void orLayer( RGBA8 );//Color, opacity
+    void addLayer( RGBA8 );//Color
+    void addLayer( RGBA8 * );//Color array
+    void orLayer( RGBA8 );//Color
 	void gradientAddLayer( RGBA8, int16_t, RGBA8, int16_t );
+	void brush( int8_t, RGBA8, int8_t );//position, color, side column width
+	void rotate( int8_t );// shift up n
     void mix( void );
 
     RGBA8 mainPage[8];

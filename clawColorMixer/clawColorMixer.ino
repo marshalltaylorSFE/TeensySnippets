@@ -42,6 +42,8 @@ uint8_t msTicksMutex = 1; //start locked out
 #include "colorMachines.h"
 int16_t bgOffset = 0;
 FlashDialog messages;
+float pointBrightness = 0;
+int8_t pointPolarity = 1;
 
 //**Action Machines***************************//
 #include "actionMachines.h"
@@ -176,10 +178,18 @@ void loop()
 	point2.red = 80;
 	point2.alpha = 70;
 	
-	outputMixer.gradientAddLayer( point1, 7 + bgOffset, point2 , 4 + bgOffset );
-	outputMixer.gradientAddLayer( point1, 0 + bgOffset, point2 , 3 + bgOffset );
-	outputMixer.gradientAddLayer( point1, -1 + bgOffset, point2, -4 + bgOffset );
-	outputMixer.gradientAddLayer( point1, -8 + bgOffset, point2, -5 + bgOffset );
+	outputMixer.gradientAddLayer( point1, 7, point2 , 4 );
+	outputMixer.gradientAddLayer( point1, 0, point2 , 3 );
+
+	outputMixer.rotate( bgOffset );
+	
+	point1.green = 100;
+	point1.blue = 0;
+	point1.red = 30;
+	point1.alpha = (uint8_t)(pointBrightness * 200);
+	
+	
+	outputMixer.brush( 2, point1, 2 );
 	
 	//Push the output
     outputMixer.mix();
@@ -224,6 +234,18 @@ void loop()
 	{
 		bgOffset = 0;
 	}
+	pointBrightness = pointBrightness + ( pointPolarity *  0.025 );
+	if( pointBrightness > 1 )
+	{
+		pointBrightness = 1;
+		pointPolarity = -1;
+	}
+	if( pointBrightness < 0 )
+	{
+		pointBrightness = 0;
+		pointPolarity = 1;
+	}
+
     //Get all parameters
     //  Serial.print("\nPos:\n");
     //  Serial.print(" X = ");
