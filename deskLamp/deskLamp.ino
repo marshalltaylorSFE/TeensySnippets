@@ -133,7 +133,12 @@ void setup()
 	greenWash.targetColor.alpha = 255;
 	blueWash.targetColor.blue = 255;
 	blueWash.targetColor.alpha = 255;
-
+	
+	pinMode(A0, OUTPUT);
+	digitalWrite(A0, 0);
+	pinMode(A2, OUTPUT);
+	digitalWrite(A2, 1);
+	pinMode(A1, INPUT);
 }
 
 void loop()
@@ -179,7 +184,7 @@ void loop()
 		bgColor1.green = 255;
 		bgColor1.blue = 255;
 		bgColor1.red = 255;
-		bgColor1.alpha = 10;
+		bgColor1.alpha = ((analogRead(A1) >> 2) >> 2);
 		Serial.println(bootSequenceCounter);
 
 		RGBA8 point1;
@@ -193,76 +198,6 @@ void loop()
 		//  Apply operations
 		outputMixer.clearPage();
 		outputMixer.addLayer(bgColor1);
-		//outputMixer.addLayer(testField);
-
-		testField[2].clear();
-		testField[2].green = 100;
-		testField[2].alpha = 255;
-		//outputMixer.addLayer(testField);
-		
-		point1.green = 80;
-		point1.blue = 0;
-		point1.red = 0;
-		point1.alpha = 120;
-		
-		point2.green = 0;
-		point2.blue = 40;
-		point2.red = 40;
-		point2.alpha = 120;
-		
-		if( bootSequenceCounter > 3 )
-		{
-			outputMixer.gradientAddLayer( point1, 19, point2, 10 );
-			outputMixer.gradientAddLayer( point1, 0, point2, 9 );
-		}
-		
-		if( bootSequenceCounter > 6 )
-		{
-			outputMixer.rotate( bgOffset );
-		}
-		else
-		{
-			//reset roller
-			bgOffset = 0;
-		}
-		
-		if(( bootSequenceCounter > 12 )&&( bootSequenceCounter < 21 )) //Blue blob
-		{
-			point1.green = 20;
-			point1.blue = 120;
-			point1.red = 20;
-			point1.alpha = (uint8_t)(pointBrightness * 200);
-			outputMixer.brush( 8, &point1, 4 );
-			
-			//bootSequenceCounter = 16; //Temp lock
-		}
-		
-		if( bootSequenceCounter >= 21 )// Sparkle
-		{
-			RGBA8 tempColor;
-			if( bootSequenceCounter > 40 )
-			{
-				//outputMixer.clearPage();
-			}
-			for( int i = 0; i < 20; i++ )
-			{
-				outputMixer.brush( i, &sparklePage[i], sparklePage[i].sideWall );
-			
-			}
-		}
-		
-		point1.red = ((uint16_t)redWash.outputColor.red * (uint16_t)redWash.outputColor.alpha) >> 8;
-		point1.green = ((uint16_t)greenWash.outputColor.green * (uint16_t)greenWash.outputColor.alpha) >> 8;
-		point1.blue = ((uint16_t)blueWash.outputColor.blue * (uint16_t)blueWash.outputColor.alpha) >> 8;
-		
-		//get biggest alpha
-		uint8_t maxAlpha = 0;
-		if( redWash.outputColor.alpha > maxAlpha ) maxAlpha = redWash.outputColor.alpha;
-		if( greenWash.outputColor.alpha > maxAlpha ) maxAlpha = greenWash.outputColor.alpha;
-		if( blueWash.outputColor.alpha > maxAlpha ) maxAlpha = blueWash.outputColor.alpha;
-		point1.alpha = maxAlpha;
-		
-		outputMixer.addLayer( point1 );
 
 		//Push the output
 		outputMixer.mix();
