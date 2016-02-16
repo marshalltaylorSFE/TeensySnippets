@@ -1,5 +1,8 @@
 //
-
+uint8_t FRLEDpin = 3;
+uint8_t FGLEDpin = 4;
+uint8_t BRLEDpin = 17;
+uint8_t BGLEDpin = 16;
 
 #define PACKET_LENGTH 10
 #define START_SYMBOL '~'
@@ -10,6 +13,8 @@ char lastPacket[PACKET_LENGTH];
 char packetPending = 0;
 
 char packet_ptr;
+
+uint8_t ledSwap = 0;
 
 // Create Bounce objects for each button.  The Bounce object
 // automatically deals with contact chatter or "bounce", and
@@ -24,6 +29,14 @@ void setup()
   delay(1000);
   // Send a welcome message to the serial monitor:
   Serial.println("Started");
+  pinMode( FRLEDpin, OUTPUT );
+  pinMode( FGLEDpin, OUTPUT );
+  pinMode( BRLEDpin, OUTPUT );
+  pinMode( BGLEDpin, OUTPUT );
+  digitalWrite( FRLEDpin, 1 );
+  digitalWrite( FGLEDpin, 0 );
+  digitalWrite( BRLEDpin, 0 );
+  digitalWrite( BGLEDpin, 1 );
 }
 
 void loop()
@@ -127,10 +140,29 @@ void loop()
 				setDrive(-9, 0);
 			}
 		}
-
 		else
 		{
 			stopCondition++;
+		}
+		if(packet[5] == '0')
+		{
+			//pressing select
+			//Swap colors
+			ledSwap ^= 1;
+			if(ledSwap)
+			{
+				digitalWrite( FRLEDpin, 0 );
+				digitalWrite( FGLEDpin, 1 );
+				digitalWrite( BRLEDpin, 1 );
+				digitalWrite( BGLEDpin, 0 );
+			}
+			else
+			{
+				digitalWrite( FRLEDpin, 1 );
+				digitalWrite( FGLEDpin, 0 );
+				digitalWrite( BRLEDpin, 0 );
+				digitalWrite( BGLEDpin, 1 );
+			}
 		}
 		if(stopCondition == 2)
 		{
@@ -150,7 +182,7 @@ void loop()
 				setDrive(0,0);
 			}
 		}
-		changed =0;
+		changed = 0;
 	}
   }
     if (Serial1.available()) // If data is sent from device
