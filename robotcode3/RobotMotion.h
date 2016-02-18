@@ -55,10 +55,12 @@ public:
 	//MessagingFlag newLeftKnob;
 	//MessagingFlag newRightKnob;
 	TimeKeeper bkupHoldTimeKeeper;
+	TimeKeeper frwdHoldTimeKeeper;
 
-	float velocity;
-	float velocityShadow;
-	float direction;
+	volatile float velocity;
+	volatile float velocityShadow;
+	volatile float direction;
+	volatile float lastFB;
 	uint8_t frontSwap;
 	//State machine stuff  
 	PStates state;

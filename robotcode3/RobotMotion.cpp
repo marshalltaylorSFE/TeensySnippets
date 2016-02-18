@@ -6,9 +6,10 @@
 #include "flagMessaging.h"
 
 #define KNOBDELTADETECT 5  //5 units of 255 for knob change detect
-#define ACCEL_RATE 0.1
+#define ACCEL_RATE 0.12
 #define DECEL_RATE 0.02
 #define BK_HOLDOFFMS 250
+#define FW_HOLDOFFMS 250
 
 RobotMotion::RobotMotion( void )
 {
@@ -17,8 +18,10 @@ RobotMotion::RobotMotion( void )
 	velocity = 0;
 	velocityShadow = 0;
 	direction = 0;
+	lastFB = 1;
 	frontSwap = 0;
 	bkupHoldTimeKeeper.mClear();
+	frwdHoldTimeKeeper.mClear();
 	
 }
 
@@ -66,15 +69,32 @@ void RobotMotion::tickStateMachine()
 	case PIdle:
 		if( rightButton.getState() )
 		{
-			direction = 1;
+			if( selectButton.getState())
+			{
+				direction = 1;
+			}
+			else
+			{
+				direction = 0.5 * lastFB;
+				velocity = 0.9 * lastFB;
+			}
 		}
 		else if( leftButton.getState() )
 		{
-			direction = -1;
+			if( selectButton.getState())
+			{
+				direction = -1;
+			}
+			else
+			{
+				direction = -0.5 * lastFB;
+				velocity = 0.9 * lastFB;
+			}
 		}
 		else
 		{
 			direction = 0;
+			velocity = 0;
 		}
 		if( downButton.serviceRisingEdge() )
 		{
@@ -94,6 +114,8 @@ void RobotMotion::tickStateMachine()
 		nextState = PIdle; //Default operation
 		break;
 	case PForward:
+		direction = 0; // Default
+		lastFB = 1;
 		if( aButton.getState() )
 		{
 			velocity = 1;
@@ -108,7 +130,17 @@ void RobotMotion::tickStateMachine()
 				velocity = 1;
 			}
 		}
-		else
+		else if ( rightButton.getState() )
+		{
+			direction = 0.3;
+			nextState = PForward;
+		}
+		else if ( leftButton.getState() )
+		{
+			direction = -0.3;
+			nextState = PForward;
+		}
+		//else
 		{
 			//decrease velo
 			velocity -= DECEL_RATE;
@@ -121,14 +153,6 @@ void RobotMotion::tickStateMachine()
 		if( velocity == 0)
 		{
 			nextState = PIdle; //Default operation
-		}
-		if ( rightButton.getState() )
-		{
-			direction = 0.5;
-		}
-		if ( leftButton.getState() )
-		{
-			direction = -0.5;
 		}
 		if( downButton.serviceRisingEdge() )
 		{
@@ -145,7 +169,7 @@ void RobotMotion::tickStateMachine()
 		if( (downButton.getState()) && ( bkupHoldTimeKeeper.mGet() < BK_HOLDOFFMS ))
 		{
 			//being held
-			velocityShadow -= DECEL_RATE;
+			velocityShadow -= ACCEL_RATE;
 			if( velocityShadow < -1 )
 			{
 				//cap it
@@ -167,8 +191,35 @@ void RobotMotion::tickStateMachine()
 			}
 
 		}
+		if( (upButton.getState()) && ( frwdHoldTimeKeeper.mGet() < FW_HOLDOFFMS ))
+		{
+			//being held
+			velocityShadow += ACCEL_RATE;
+			if( velocityShadow > 1 )
+			{
+				//cap it
+				velocityShadow = 1;
+			}
+		}
+		else
+		{
+			if(upButton.getState())
+			{
+				//button still held
+				//Set the shadow and depart
+				velocity = velocityShadow;
+				nextState = PForward;
+			}
+			else
+			{
+				nextState = PIdle;
+			}
+
+		}
         break;
 	case PBackward:
+		direction = 0; // Default
+		lastFB = -1;
 		if( aButton.getState() )
 		{
 			velocity = 1;
@@ -184,7 +235,17 @@ void RobotMotion::tickStateMachine()
 				velocity = -1;
 			}
 		}
-		else
+		else if ( rightButton.getState() )
+		{
+			direction = -0.3;
+			nextState = PBackward;
+		}
+		else if ( leftButton.getState() )
+		{
+			direction = 0.3;
+			nextState = PBackward;
+		}
+		//else
 		{
 			//increase velo
 			velocity += DECEL_RATE;
@@ -198,20 +259,16 @@ void RobotMotion::tickStateMachine()
 		{
 			nextState = PIdle; //Default operation
 		}
-		if ( rightButton.getState() )
-		{
-			direction = 0.5;
-		}
-		if ( leftButton.getState() )
-		{
-			direction = -0.5;
-		}
 		if( upButton.serviceRisingEdge() )
 		{
 			//Brake
 			velocity = 0;
 			direction = 0;
 			nextState = PForward;
+			//Start forward timer
+			velocityShadow = 0;
+			frwdHoldTimeKeeper.mClear();
+			nextState = PStop;
 		}
         break;
 	default:

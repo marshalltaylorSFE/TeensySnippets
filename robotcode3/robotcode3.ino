@@ -38,7 +38,7 @@ TimerClass32 ledToggleTimer( 333000 );
 TimerClass32 ledToggleFastTimer( 100000 );
 TimerClass32 motorUpdateTimer( 10000 );
 TimerClass32 debounceTimer(5000);
-TimerClass32 debugTimer(100000);
+TimerClass32 debugTimer(1000000);
 
 char tempSpeedCharL = '0';
 char tempSpeedCharR = '0';
@@ -156,13 +156,13 @@ void loop()
 	{
 		if( frontSwap )
 		{
-			indicators.setPixelColor(0, 0xFF0000);
-			indicators.setPixelColor(1, 0x00FF00);
+			indicators.setPixelColor(1, 0xFF0000);
+			indicators.setPixelColor(0, 0x00FF00);
 		}
 		else
 		{
-			indicators.setPixelColor(0, 0x00FF00);
-			indicators.setPixelColor(1, 0xFF0000);
+			indicators.setPixelColor(1, 0x00FF00);
+			indicators.setPixelColor(0, 0xFF0000);
 		}
 		indicators.show();
 		
@@ -192,7 +192,18 @@ void loop()
 		myRobot.processMachine();
 		
 		//Deal with outputs
-		setDrive((myRobot.velocity * 9), myRobot.direction);
+		if( myRobot.velocity > 0.1 )
+		{
+			setDrive((myRobot.velocity * 5) + 4, myRobot.direction);
+		}
+		else if( myRobot.velocity < -0.1 )
+		{
+			setDrive((myRobot.velocity * 5) + -4, myRobot.direction);
+		}
+		else
+		{
+			setDrive(0, myRobot.direction);
+		}
 		frontSwap = myRobot.frontSwap;
 //		if( myLooperPanel.resetTapHeadFlag.serviceRisingEdge() )
 //		{
@@ -257,17 +268,10 @@ void setDrive( int32_t speed, float direction)
 	tempSpeedDirL = 'R';
 	tempSpeedDirR = 'R';
 	
-	if(speed < 0)
-	{
-		//flip
-		speed *= -1;
-		tempSpeedDirL = 'F';
-		tempSpeedDirR = 'F';
-		direction *= 1;
-	}
 
 	if( speed == 0 && direction == 1 )
 	{
+		//Serial.println("Right");
 		//full right
 		tempSpeedCharL += 9;
 		tempSpeedCharR += 9;
@@ -276,6 +280,8 @@ void setDrive( int32_t speed, float direction)
 	}
 	else if( speed == 0 && direction == -1 )
 	{
+		//Serial.println("Left");
+
 		//full right
 		tempSpeedCharL += 9;
 		tempSpeedCharR += 9;
@@ -284,15 +290,39 @@ void setDrive( int32_t speed, float direction)
 	}
 	else
 	{
+		if(frontSwap)
+		{
+			speed *= -1;
+			direction *= -1;
+		}
+		
+		if(speed < 0)
+		{
+			//flip
+			Serial.println("Neg speed");
+			speed *= -1;
+			tempSpeedDirL = 'F';
+			tempSpeedDirR = 'F';
+			direction *= 1;
+		}
+		//Serial.println("Normal");
 		if( direction > 0) //right
 		{
+			Serial.println("Nudge Right: ");
 			tempSpeedCharL += speed;
 			tempSpeedCharR += speed*direction;
+			Serial.print(tempSpeedCharL);
+			Serial.print(" ");
+			Serial.println(tempSpeedCharR);
 		}
 		else if( direction < 0)
 		{
+			Serial.println("Nudge Left");
 			tempSpeedCharL += speed*(direction * -1);
 			tempSpeedCharR += speed;
+			Serial.print(tempSpeedCharL);
+			Serial.print(" ");
+			Serial.println(tempSpeedCharR);
 		}
 		else //stright
 		{

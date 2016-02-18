@@ -1,8 +1,8 @@
 //
-uint8_t FRLEDpin = 3;
-uint8_t FGLEDpin = 4;
-uint8_t BRLEDpin = 17;
-uint8_t BGLEDpin = 16;
+
+#include <Adafruit_NeoPixel.h>
+uint8_t WSpin = 6;
+
 
 #define PACKET_LENGTH 10
 #define START_SYMBOL '~'
@@ -15,6 +15,8 @@ char packetPending = 0;
 char packet_ptr;
 
 uint8_t ledSwap = 0;
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(2, WSpin, NEO_GRB + NEO_KHZ800);
 
 // Create Bounce objects for each button.  The Bounce object
 // automatically deals with contact chatter or "bounce", and
@@ -29,14 +31,15 @@ void setup()
   delay(1000);
   // Send a welcome message to the serial monitor:
   Serial.println("Started");
-  pinMode( FRLEDpin, OUTPUT );
-  pinMode( FGLEDpin, OUTPUT );
-  pinMode( BRLEDpin, OUTPUT );
-  pinMode( BGLEDpin, OUTPUT );
-  digitalWrite( FRLEDpin, 1 );
-  digitalWrite( FGLEDpin, 0 );
-  digitalWrite( BRLEDpin, 0 );
-  digitalWrite( BGLEDpin, 1 );
+  
+  strip.begin();
+  uint32_t c = 0x0000FF00;
+  strip.setPixelColor(1, c);    //turn every third pixel on
+  c = 0x00FF0000;
+  strip.setPixelColor(0, c);    //turn every third pixel on
+
+  strip.show(); // Initialize all pixels to 'off'
+  
 }
 
 void loop()
@@ -151,18 +154,19 @@ void loop()
 			ledSwap ^= 1;
 			if(ledSwap)
 			{
-				digitalWrite( FRLEDpin, 0 );
-				digitalWrite( FGLEDpin, 1 );
-				digitalWrite( BRLEDpin, 1 );
-				digitalWrite( BGLEDpin, 0 );
+				uint32_t c = 0x00FF0000;
+				strip.setPixelColor(1, c);    //turn every third pixel on
+				c = 0x0000FF00;
+				strip.setPixelColor(0, c);    //turn every third pixel on
 			}
 			else
 			{
-				digitalWrite( FRLEDpin, 1 );
-				digitalWrite( FGLEDpin, 0 );
-				digitalWrite( BRLEDpin, 0 );
-				digitalWrite( BGLEDpin, 1 );
+				uint32_t c = 0x0000FF00;
+				strip.setPixelColor(1, c);    //turn every third pixel on
+				c = 0x00FF0000;
+				strip.setPixelColor(0, c);    //turn every third pixel on
 			}
+			strip.show();
 		}
 		if(stopCondition == 2)
 		{
@@ -205,6 +209,12 @@ void setDrive( int32_t speed, float direction)
 	char tempSpeedCharR = '0';
 	char tempSpeedDirL = 'R';
 	char tempSpeedDirR = 'R';
+	
+	if(ledSwap)
+	{
+		speed *= -1;
+		direction *= -1;
+	}
 	
 	if(speed < 0)
 	{
