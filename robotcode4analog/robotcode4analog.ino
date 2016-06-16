@@ -50,7 +50,7 @@ TimerClass32 remoteInputTimer( 1000 );
 TimerClass32 robotMotionTimer(10000);
 TimerClass32 ledToggleTimer( 333000 );
 TimerClass32 ledToggleFastTimer( 100000 );
-TimerClass32 motorUpdateTimer( 10000 );
+TimerClass32 motorUpdateTimer( 4000 );
 TimerClass32 debounceTimer(5000);
 TimerClass32 debugTimer(1000000);
 
@@ -154,7 +154,7 @@ void loop()
 				//if(packet[k] != lastPacket[k])
 				{
 					lastPacket[k] = packet[k];
-					Serial.print(packet[k]);
+					//Serial.print(packet[k]);
 					//Serial.println("change marked");
 				} 
 			}
@@ -199,6 +199,15 @@ void loop()
 		}
 		else
 		{
+			//Flip a channel at the output here
+			//if(tempSpeedDirR == 'R')
+			//{
+			//	tempSpeedDirR = 'F';
+			//}
+			//else
+			//{
+			//	tempSpeedDirR = 'R';
+			//}
 			Serial1.print('2');
 			Serial1.print(tempSpeedDirR);
 			Serial1.print(tempSpeedCharR);
@@ -214,34 +223,24 @@ void loop()
 		//Tick the machine
 		myRobot.processMachine();
 		
+		//Serial.print("DIR: ");
+		//Serial.println(myRobot.direction);
+		
 		//Deal with outputs
-		if( myRobot.velocity > 0.1 )
-		{
-			setDrive((myRobot.velocity * 9), myRobot.direction);
-		}
-		else if( myRobot.velocity < -0.1 )
-		{
-			setDrive((myRobot.velocity * -9), myRobot.direction);
-		}
-		else
-		{
-			setDrive(0, myRobot.direction);
-		}
+		//if( myRobot.velocity > 0.1 )
+		//{
+		//	setDrive((myRobot.velocity * 9), myRobot.direction);
+		//}
+		//else if( myRobot.velocity < -0.1 )
+		//{
+		//	setDrive((myRobot.velocity * -9), myRobot.direction);
+		//}
+		//else
+		//{
+		//	setDrive(0, myRobot.direction);
+		//}
+		setDrive((myRobot.velocity * 9), myRobot.direction);
 		frontSwap = myRobot.frontSwap;
-//		if( myLooperPanel.resetTapHeadFlag.serviceRisingEdge() )
-//		{
-//			myLooperPanel.resetTapHeadFlag.clearFlag();
-//			tapHead.zero();
-////			Serial.println("Zero'd head");
-//		}
-//		if( myLooperPanel.markLengthFlag.serviceRisingEdge() )
-//		{
-//			myLooperPanel.lengthEstablishedFlag.setFlag();
-//			myLooperPanel.markLengthFlag.clearFlag();
-//			loopLength = tapHead.getQuantizedPulses( myLooperPanel.quantizeTrackTicks );
-////			Serial.print("************************");
-////			Serial.println(loopLength);
-//		}
 
 	}
 	//**Debug timer*******************************//  
@@ -262,11 +261,11 @@ void loop()
 	{
 		digitalWrite( debugPin, digitalRead(debugPin) ^ 1 );
 		//Serial.println(myRobot.leftButton.buttonDebounceTimeKeeper.mGet());
-		Serial.println(myRobot.b1Button.getState());
-		Serial.println(myRobot.b2Button.getState());
+		//Serial.println(myRobot.b1Button.getState());
+		//Serial.println(myRobot.b2Button.getState());
 		//Serial.println(lastPacket[1]);
-		Serial.println(myRobot.velocity);
-		Serial.println(myRobot.direction);
+		//Serial.println(myRobot.velocity);
+		//Serial.println(myRobot.direction);
 	}
 
 	
@@ -292,65 +291,83 @@ void setDrive( int32_t speed, float direction)
 	tempSpeedDirR = 'R';
 	
 
-	if( speed == 0 && direction == 1 )
-	{
-		//Serial.println("Right");
-		//full right
-		tempSpeedCharL += 9;
-		tempSpeedCharR += 9;
-		tempSpeedDirL = 'R';
-		tempSpeedDirR = 'F';
-	}
-	else if( speed == 0 && direction == -1 )
-	{
-		//Serial.println("Left");
-
-		//full right
-		tempSpeedCharL += 9;
-		tempSpeedCharR += 9;
-		tempSpeedDirL = 'F';
-		tempSpeedDirR = 'R';
-	}
-	else
+//	if( speed == 0 && direction == 1 )
+//	{
+//		//Serial.println("Right");
+//		//full right
+//		tempSpeedCharL += 9;
+//		tempSpeedCharR += 9;
+//		tempSpeedDirL = 'R';
+//		tempSpeedDirR = 'F';
+//	}
+//	else if( speed == 0 && direction == -1 )
+//	{
+//		//Serial.println("Left");
+//
+//		//full right
+//		tempSpeedCharL += 9;
+//		tempSpeedCharR += 9;
+//		tempSpeedDirL = 'F';
+//		tempSpeedDirR = 'R';
+//	}
+//	else
 	{
 		if(frontSwap)
 		{
 			speed *= -1;
 			direction *= -1;
 		}
-		
 		if(speed < 0)
 		{
 			//flip
-			Serial.println("Neg speed");
+			//Serial.println("Neg speed");
 			speed *= -1;
 			tempSpeedDirL = 'F';
 			tempSpeedDirR = 'F';
 			direction *= 1;
 		}
 		//Serial.println("Normal");
-		if( direction > 0.2) //right
+		if( direction > 0.1) //right
 		{
-			Serial.println("Nudge Right: ");
-			tempSpeedCharL = speed;
-			tempSpeedCharR = speed*direction;
-			Serial.print(tempSpeedCharL);
-			Serial.print(" ");
-			Serial.println(tempSpeedCharR);
+			//Serial.print("Right: ");
+			tempSpeedCharR = speed+2;
+			tempSpeedCharL = speed + direction * 9;
+			//Serial.print(tempSpeedCharL);
+			//Serial.print(" ");
+			//Serial.println(tempSpeedCharR);
 		}
-		else if( direction < -0.2)
+		else if( direction < -0.1)
 		{
-			Serial.println("Nudge Left");
-			tempSpeedCharL = speed*(direction * -1);
-			tempSpeedCharR = speed;
-			Serial.print(tempSpeedCharL);
-			Serial.print(" ");
-			Serial.println(tempSpeedCharR);
+			//Serial.print("Left: ");
+			tempSpeedCharR = speed+(direction * -9);
+			tempSpeedCharL = speed+2;
+			//Serial.print(tempSpeedCharL);
+			//Serial.print(" ");
+			//Serial.println(tempSpeedCharR);
 		}
-		else //stright
+		else if( speed > 0.1 )//stright
 		{
-			tempSpeedCharL = speed;
-			tempSpeedCharR = speed;
+			tempSpeedCharL = speed+2;
+			tempSpeedCharR = speed+2;
 		}
+		else
+		{
+			tempSpeedCharL = 0;
+			tempSpeedCharR = 0;
+		}
+
+		if(tempSpeedCharL > 9) tempSpeedCharL = 9;
+		if(tempSpeedCharR > 9) tempSpeedCharR = 9;			
+		
+		tempSpeedCharL = hex2char(tempSpeedCharL);
+		tempSpeedCharR = hex2char(tempSpeedCharR);
+		
+		Serial.print(tempSpeedCharL);
+		Serial.print(" ");
+		Serial.print(tempSpeedCharR);
+		Serial.print(" ");
+		Serial.print(tempSpeedDirL);
+		Serial.print(" ");
+		Serial.println(tempSpeedDirR);
 	}
 }
