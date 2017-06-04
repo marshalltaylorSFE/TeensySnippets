@@ -14,8 +14,8 @@
 //HOW TO OPERATE
 //  Make TimerClass objects for each thing that needs periodic service
 //  pass the interval of the period in ticks
-//  Set MAXINTERVAL to the max foreseen interval of any TimerClass
-//  Set MAXTIMER to overflow number in the header.  MAXTIMER + MAXINTERVAL
+//  Set maxInterval to the max foreseen interval of any TimerClass
+//  Set maxTimer to overflow number in the header.  maxTimer + maxInterval
 //    cannot exceed variable size.
 
 //**General***********************************//
@@ -47,8 +47,8 @@ uint16_t tempTimer = 0;
 uint16_t msTicks = 0;
 uint8_t msTicksMutex = 1; //start locked out
 
-#define MAXINTERVAL 2000 //Max TimerClass interval
-
+uint16_t maxTimer = 60000;
+uint16_t maxInterval = 2000;
 
 //**Color state machines**********************//
 #include "colorMixer.h"
@@ -71,18 +71,6 @@ WashOut blueWash;
 #define WS2812PIN 3
 
 ColorMixer outputMixer(60, WS2812PIN, NEO_GRB + NEO_KHZ800);
-
-//If 328p based, do this
-#ifdef __AVR__
-#include <Arduino.h>
-#endif
-
-//If Teensy 3.1 based, do this
-#ifdef __MK20DX256__
-IntervalTimer myTimer;
-#endif
-
-#define MAXINTERVAL 2000
 
 void setup()
 {
@@ -407,9 +395,9 @@ void serviceMS(void)
 #endif
 {
   uint32_t returnVar = 0;
-  if(msTicks >= ( MAXTIMER + MAXINTERVAL ))
+  if(msTicks >= ( maxTimer + maxInterval ))
   {
-    returnVar = msTicks - MAXTIMER;
+    returnVar = msTicks - maxTimer;
 
   }
   else
